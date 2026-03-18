@@ -1,0 +1,158 @@
+信号
+#include<signal.h>
+
+信号的特点：
+	1.简单、不能携带大量信息、满足某个条件才能发送
+	2.信号是软件层面上的"中断"，一旦信号产生，无论程序执行到说明位置，必须立即停止运行，处理信号，处理信号结束后再继续执行后续指令。
+	3.所有信号的产生和处理都是由 内核 完成的。
+
+信号的概念：
+	1.产生信号的方式：
+		1）按键产生
+		2）系统调用产生
+		3）软件条件产生
+		4）硬件异常产生
+		5）命令产生
+	2.未决：产生与递达之间的状态(信号尚未处理)
+	3.递达：信号产生并且到达进程，可以认为已被内核处理
+	4.信号处理方式：
+		1）执行默认处理动作
+		2）忽略
+		3）捕捉(用户自定义)
+	5.阻塞信号集(信号屏蔽字)：本质：位图  用于记录信号的屏蔽状态，信号一旦被屏蔽，则在解除屏蔽之前，一直处于未决态
+	6.未决信号集：本质：位图   用于记录信号的处理状态，1表示信号已产生，但仍未被处理
+
+
+信号4要素：信号使用之前必须确定
+	信号编号、信号名称、信号对应事件、信号的默认处理方式
+
+常用信号：(kill -l 查看)
+1) SIGHUP: 当用户退出 shell 时，由该 shell 启动的所有进程将收到这个信号，默认动作为终止进程
+2) SIGINT: 当用户按下了<Ctrl+C>组合键时，用户终端向正在运行中的由该终端启动的程序发出此信号。默认动作为终止进程。
+3) SIGQUIT: 当用户按下<ctrl+\>组合键时产生该信号，用户终端向正在运行中的由该终端启动的程序发出些信号。默认动作为终止进程。
+7) SIGBUS: 非法访问内存地址，包括内存对齐出错，默认动作为终止进程并产生 core 文件。
+8) SIGFPE: 在发生致命的运算错误时发出。不仅包括浮点运算错误，还包括溢出及除数为 0 等所有的算法错误。默认动作为终止进程并产生 core 文件。
+9) SIGKILL: 无条件终止进程。本信号不能被忽略，处理和阻塞。默认动作为终止进程。它向系统管理员提供了可以杀死任何进程的方法。
+10) SIGUSR1: 用户定义 的信号。即程序员可以在程序中定义并使用该信号。默认动作为终止进程。
+11) SIGSEGV: 指示进程进行了无效内存访问(段错误)。默认动作为终止进程并产生 core 文件。
+12) SIGUSR2: 另外一个用户自定义信号，程序员可以在程序中定义并使用该信号。默认动作为终止进程。
+13) SIGPIPE: Broken pipe 向一个没有读端的管道写数据。默认动作为终止进程。
+14) SIGALRM: 定时器超时，超时的时间 由系统调用 alarm 设置。默认动作为终止进程。
+15) SIGTERM: 程序结束信号，与 SIGKILL 不同的是，该信号可以被阻塞和终止。通常用来表示程序正常退出。执行 shell 命令 Kill 时，缺省产生这个信号。默认动作为终止进程。
+17) SIGCHLD: 子进程状态发生变化时 父进程会收到这个信号 默认动作为忽略这个信号
+19) SIGSTOP: 暂停进程的执行。信号不能被忽略，处理和阻塞。默认动作为暂停进程。
+20) SIGTSTP: 暂停终端交互进程的运行。按下<ctrl+z>组合键时发出这个信号。默认动作为暂停进程。
+
+
+kill命令和kill函数：
+	1.函数原型：int kill(pid_t pid, int signum)    ->命令：kill  -sig   pid
+	2.参数：
+	  pid 1）>0：发送信号给指定进程
+		2）=0：发送信号给与调用kill函数的这个进程处于同一进程组的进程
+		3）<-1：取绝对值，发送信号给该绝对值所对应的进程组的所有组员
+		4）=-1：发送信号给有权限发送的所有进程
+	3.返回值：成功->0   失败->-1 errno
+	4.作用：给进程发送信号(!=单纯杀死进程)
+
+
+alarm函数：#include<unistd.h>
+	1.函数原型：unsigned int alarm(unsigned int seconds)
+	2.返回值(无错误现象)：返回0或剩余的秒数（因为每个进程都有且仅有一个定时器）
+	3.常用：取消定时器->alarm(0);
+	4.功能：在经过secons之后给当前进程发送信号SIGALRM
+	5.拓展：可以使用time ./alarm.exe查看程序执行时间
+		     发现程序优化的瓶颈在于IO 优化程序首选IO
+	
+setitimer函数：#include<sys/time.h>
+	1.函数原型：int setitimer(int which, const struct itimerval *new_value, struct itimerval *old_value)
+	2.参数：
+		1）which：
+			ITIMER_REAL：采用自然计时。---> SIGALRM
+			ITIMER_VIRTUAL：采用用户空间计时 ---> SIGVTALRM
+			ITIMER_PROF：采用内核 + 用户空间计时 ---> SIGPROF
+		2）new_value：定时秒数
+		3）old_value：传出参数，上次定时剩余时间
+	3.类型：
+		struct itimerval 
+		{
+			struct timeval it_value; ---> 第一次定时秒数(do)
+			struct timeval it_interval; ---> 周期定时秒数(while)
+		};
+		struct timeval 
+		{
+			time_t tv_sec; ---> 秒          
+			suseconds_t tv_usec;  ---> 微秒
+		};
+	4.返回值：
+		成功：0  
+		失败：-1  errno
+
+其他发送信号的函数：int raise(int sig)     void abort(void)
+
+
+
+自定义信号集 的 操作函数：
+	sigset_t   set;		自定义信号集
+	sigemptyset(sigset_t * set); 	清空信号集(必须先用该函数对set进行初始化)
+	sigfillset(sigset_t * set);		全部位置1
+	sigaddset(sigset_t * set, int signum);	将一个信号添加到信号集
+	sigdelset(sigset_t * set, int signum);		将一个信号从信号集删除
+	sigismember(const sigset_t * set, int signum);		判断一个信号是否在集合中 在->1，不在->0
+
+设置阻塞信号集(设置阻塞和解除阻塞):
+	1.函数原型：int sigprocmask(int how, const sigset_t * newset, sigset_t * oldset);
+	2.参数解释：
+		1）how：
+			SIG_BLOCK：设置阻塞(对于newset上为1的位)
+			SIG_UNBLOCK：取消阻塞(对于newset上为1的位)
+			SIG_SETMASK：用自定义set替换mask
+		2）newset：自定义的信号集		
+		3）oldset：(传出参数)原来的mask（可以用于还原）
+	3.返回值：成功0   失败-1
+
+查看未决信号集：
+	1.int sigpending(sigset_t * set);	 使用set作为传出参数，即传出的未决信号集
+	2.返回值：成功0   失败-1
+
+
+▲信号捕捉：
+	1.signal函数：
+		函数原型及其内部结构体：
+		typedef void (* sighandler_t)(int);
+		sighandler_t signal(int signum, sighandler handler);  
+
+	        参数：待捕获的信号值，捕获后的操作函数(必须是返回值void，带有一个int参数的函数)）
+
+		说明：
+		1）该函数的作用是注册一个信号捕捉函数，并非调用成功就捕捉到信号
+		2）该函数由ANSI定义，通用性不够强
+
+
+	2.sigaction函数：
+		函数原型及其内部结构体：
+		int sigaction(int signum,const struct sigaction * act,cocnst struct sigaction * oldact);
+		struct sigaction
+		{
+			void (*sa_handler)(int);        函数指针sa_handler，指向操作函数
+			sigset_t   sa_mask;		    sigaction作用域下的阻塞信号集，当在执行信号捕捉函数时，对指定信号进行阻塞(一般使用sigemptyset初始化为0 再传入)
+			int sa_flags;			    0->当在执行操作函数时，对本信号(signum)进行阻塞(一般传0)
+		}
+
+		参数：(均为指针，传入地址)act作为传入参数，oldact作为传出参数
+
+		说明：通用性更强
+
+
+
+信号捕捉特性：
+	1.捕捉函数执行期间，阻塞信号集 由mask -> sa_mask，捕捉函数执行结束，恢复回mask
+	2.捕捉函数执行期间，本信号自动被屏蔽(sa_flags=0)
+	3.捕捉函数执行期间，被屏蔽信号多次发送，解除屏蔽后只处理一次！(常规信号不支持排队)
+
+内核实现的信号捕捉过程：
+▲借助信号捕捉回收子进程：/c/signal/catch_child.c
+
+
+
+
+

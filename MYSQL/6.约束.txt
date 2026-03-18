@@ -1,0 +1,34 @@
+约束
+1.概念：约束是作用于表中字段上的规则，用于限制存储在表中的数据
+2.目的：保证数据库中数据的正确性、有效性、完整性
+
+3.分类：(1-5放在comment前)
+	1)非空约束：not null		：该字段的数据不能为null
+	2)唯一约束：unique		：该字段的数据不能重复
+	3)主键约束：primary key 	：主键是一行数据的唯一标识 要求非空且唯一 (自增：auto_increment)
+	4)默认约束：default		：若未指定该字段的数据 则采用默认值
+	5)检查约束：check		：保证字段的数据保证某一条件
+	6)外键约束：foreign key	：用来让两张表的数据之间建立连接(外键字段与另一张表的【主键】关联) 保证数据的一致性和完整性(不符合关联行为规则的增删改操作会被拒绝)
+				
+	7)注意：约束是作用在字段上的，可以在创建/修改表时添加约束
+
+4.外键约束：子表(多)-主表(一)
+语法：
+	1.添加外键
+	create table ...(
+		字段名 数据类型,
+		[constraint 外键名称]   foreign key(外键字段名)    references   主表(主表字段名)
+	);
+	alter table 表名   add constraint   外键名   foreign key(外键字段名)   references   主表(主表字段名);
+	2.删除外键
+	alter table 表名   drop   foreign key   外键名称;
+	
+删除/更新行为：
+	1.no action / restrict（默认）：删除/更新父表数据时，先检查是否有外键，若有则   不允许删除/更新
+	2.cascade：删除/更新主表数据时，先检查是否有外键，若有则                                 同时删除/更新外键在子表的数据
+	3.set null：删除/更新主表数据时，先检查是否有外键，若有则                                  设置子表中该外键值为null
+	4.设置的语法：
+		alter table 表名   add constraint   外键名   foreign key(外键字段名)   references   主表(主表字段名)   on update 行为   on delete 行为;
+
+
+

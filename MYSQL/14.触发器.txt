@@ -1,0 +1,41 @@
+触发器
+
+==========================
+定义：触发器是绑定在表上的数据库对象，当表发生 INSERT/UPDATE/DELETE 操作时，会自动执行预先定义的 SQL 逻辑，无需应用程序主动调用。
+核心作用：在数据库层面保障数据完整性、记录操作日志、自动校验数据等，实现 “数据变更时自动触发业务逻辑”。
+触发级别：仅支持行级触发（每修改一行就触发一次），不支持语句级触发（一次语句只触发一次）。
+
+INSERT 型触发器	NEW 表示将要或者已经新增的数据行(无OLD)
+UPDATE 型触发器	OLD 表示修改之前的数据，NEW 表示将要或已经修改后的数据行
+DELETE 型触发器	OLD 表示将要或者已经删除的数据行(无NEW)
+
+
+==========================
+语法
+创建：
+CREATE  TRIGGER   trigger_name
+BEFORE/AFTER   INSERT/UPDATE/DELETE
+ON  tbl_name   FOR EACH ROW 	-- 行级触发器
+BEGIN
+    trigger_stmt ;
+END;
+
+查看：
+SHOW TRIGGERS;
+
+删除：
+DROP TRIGGER [schema_name.]trigger_name; -- 如果没有指定schema_name. 默认为当前数据库
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,33 @@
+聊天室程序设计思路
+server：
+	epoll_create
+	socket
+	bind
+	listen
+	epoll_ctl EPOLL_CTL_ADD 
+	while(1)
+		epoll_wait
+		lfd -> 
+			accept 
+			setnonblock 
+			epoll_ctl(add)   设置ET模式
+			usercnt++ 
+			users[fd]=user_data(call_back arg buf writebuf)
+		cfd ->
+			EPOLLIN->read+write to other writebuf
+			EPOLLOUT->write to cfd
+
+client：
+	(pipe)
+	socket 
+	(serv_addr)
+	connect
+	select：
+		子进程处理 STDIN_FILENO  ->  pipe[1]
+			->fget   write_to_pipe[1]
+		通过pipe实现父子进程通信
+		父进程处理 pipe[0] ->cfd /  cfd->终端
+			->read   write
+	使用信号处理子进程退出
+	//也可以尝试使用双线程(不需要pipe即可通信)
+

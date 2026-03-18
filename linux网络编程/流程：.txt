@@ -1,0 +1,36 @@
+流程：
+服务器启动流程 (TcpServer::start()-> EventLoop::loop())：这是整个系统的开端。跟踪从main函数开始，到TcpServer、Acceptor初始化，再到EventLoopThreadPool启动子线程（SubLoop），最后到主事件循环开始poll的完整过程。这个流程能让你理解“one loop per thread”模型是如何搭建起来的。
+
+新连接建立流程 (从 Acceptor::handleRead到 TcpConnection建立)：这是Reactor模式的典型体现。跟踪从监听socket可读开始，到Acceptor接受新连接，如何通过轮询算法分配给一个SubLoop，并最终创建TcpConnection对象、注册其Channel到对应EventLoop的完整链条。这个流程会串联起大部分核心组件。
+
+消息读写流程 (TcpConnection的数据流)：这是业务逻辑的核心。跟踪一条数据从网卡到达，如何被Channel感知，调用TcpConnection::handleRead存入应用层缓冲区Buffer，再如何通过回调传递给用户代码，以及用户如何通过send发送数据。这个流程能让你理解muduo如何处理非阻塞I/O和缓冲。
+
+
+核心组件：
+EventLoop：它是Reactor模式的核心。你的导图不应只有loop()函数，还应包含其关键的成员变量，如：
+
+Poller* poller_：IO多路复用的封装。
+
+ChannelList activeChannels_：每次返回的活动Channel列表。
+
+std::vector<Functor> pendingFunctors_：跨线程任务队列。
+
+重点理解 runInLoop/queueInLoop​ 和 wakeup()​ 机制，这是实现线程间通信和任务投递的关键。
+
+Channel：它是事件处理的枢纽。导图应清晰展示：
+
+fd_, events_, revents_的作用。
+
+各种回调函数（readCallback_, writeCallback_等）的设置和调用时机。
+
+update()方法如何最终调用到Poller::updateChannel，完成fd到epoll内核事件的注册。
+
+TcpConnection：它是网络连接的抽象。导图应剖析其结构，并理解其生命周期管理：
+
+它如何组合Socket、Channel和Buffer。
+
+handleRead、handleWrite、handleClose等函数如何工作。
+
+特别关注其生命周期如何通过shared_ptr进行管理，以及Channel::tie()机制如何防止在处理事件时对象被意外销毁。
+
+给我讲讲不同组件的生命周期

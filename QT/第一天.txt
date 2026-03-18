@@ -1,0 +1,95 @@
+第一天
+创建第一个QT项目：
+	1.名称不能有中文和空格，路径不能有中文。
+
+解释main函数：
+	2.窗口类：父：QWidget、子：QMainWindow、QDialog
+	3.main函数：
+			QApplication a：应用程序对象
+			myWidget w：窗口对象
+			w.show()：显示窗口
+			return a.exec()：让应用程序对象进入消息循环机制，阻塞在当前行
+
+命名规范：
+	1.类名：首字母大写，单词和单词之间首字母大写。
+	2.函数名、变量名：首字母小写，单词和单词之间首字母大写。
+
+快捷键：
+	1.注释：ctrl + /
+	2.运行：ctrl + r
+	3.编译：ctrl + b
+	4.字体缩放：ctrl + 鼠标滚轮
+	5.查找：ctrl + f
+	6.帮助文档：F1
+	7.自动对齐：ctrl + i
+	8.同名的.h和.cpp文件切换：F4
+
+按钮控件常用API：#include<QPushButton>
+	1.创建：QPushButton * btn =new QPushButton(提示文本，归属父窗口);
+	2.设置父亲：btn->setParent(this);
+	3.设置文本：btn->setText("文字");
+	4.设置位置：btn->move(x，y);
+	5.重新指定窗口大小：resize(长，宽);
+	6.设置窗口固定大小：setFixSize(长，宽);
+	7.设置窗口标题：setWindowTitle("");
+
+对象树：
+	创建的对象在堆区时，若指定其父亲为QObject派生下来的类，则可以不用管理释放的操作。(自动析构回收)
+
+坐标系：
+	左上角为原点(0,0)，x以向右为正方向，y以向下为正方向。
+
+
+信号和槽：
+	1.连接函数：connect(信号的发送者，发送的信号，信号的接收者，处理信号的槽函数)
+	2.例子：connect(btn,&QPushButton::clicked,this,&QWidget::close);
+	3.特点：松散耦合
+	4.触发信号：emit + 函数调用; 
+	5.例子：emit te->hungry("锅包肉");
+
+自定义的信号和槽：
+	1.自定义信号：
+			1）写到signals下
+			2）返回值void 
+			3）需要声明，不需要实现 
+			4）可以有参数，可以重载
+	2.自定义槽：
+			1）写到public slots下 或 public下 或 全局函数
+			2）返回值void 
+			3）需要声明，也需要实现 
+			4）可以有参数，可以重载
+
+重载的自定义信号和槽：
+	1.时机：信号和槽发生重载 -> 一定要使用函数指针
+	2.使用函数指针，明确指向函数的地址： 
+		返回值类型(类名: :  *指针名)(参数列表) = &类名: : 信号名/槽名;
+		例子：void(teacher: :  *teacherSignal)(QString) = & teacher: :  hungry;
+
+QString转为 char* ：  s.toUtf8().data();
+		1..toUtf8()  转为QByteArray
+		2..data()  转为Char*
+
+
+是否声明为Widget的成员属性(?)：独立、临时一次性的则不用
+
+
+拓展：
+	1.信号可以连接信号：
+	2.一个信号可以连接多个槽：
+	3.多个信号可以连接一个槽：
+	4.信号和槽的参数：类型：一定要一对一匹配 个数：N(信号)>=N(槽)
+	5.断开信号：disconnect(相同的参数);
+
+Qt4版本的connect：
+	语法：connect(信号的发送者，SIGNAL(信号),信号的接收者,SLOT(槽函数));
+	例:connect(te,SIGNAL(hungry()),st,SLOT(treat()));
+	优点：参数直观
+	缺点：编译器不会检测参数类型
+
+Lambda表达式：可以作为槽函数或匿名函数	
+	1.语法：[](){}
+	2.在[]中填：1）=表示按值传递  2）&表示按引用传递
+	3.在()和{}之间加上mutable，让值传递的变量可以修改其拷贝值
+	4.在()和{}之间加上 ->int ，表示返回值类型为int
+	5.在末尾使用();调用该匿名函数
+

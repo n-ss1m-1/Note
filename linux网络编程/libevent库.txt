@@ -1,0 +1,245 @@
+libevent库
+
+优点：开源、精简、跨平台、专注于网络通信
+
+特性：基于“事件”的异步通信模型 --- 回调函数
+
+一、libevent框架：#include<event2/event.h>
+	1.创建event_base(底座)：
+		[struct event_base]* base=event_base_new();		
+		fork()后子进程使用的event_base：使用int event_reinit(base) 进行初始化
+
+	2.创建事件event(积木)
+		1)常规事件event：
+			event_new(base, fd, what, cb, &arg);
+		2)带缓冲区的事件bufferevent：
+			bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE);
+
+	3.将事件添加到base上
+		int event_add(ev, NULL);
+
+	4.循环监听事件是否满足
+		1)开启循环：
+		int event_base_dispatch(base);
+			只有event_new指定了EV_PERSIST才持续触发
+			通常：EV_WRITE | EV_PERSIST 、 EV_READ | EV_PERSIST
+		2)指定时间后停止循环：
+		int event_base_loopexit(struct event_base* base, const struct timeval* tv)
+		3)立即停止循环：
+		int event_base_loopbreak(struct event_base* base);
+
+	5.释放event_base
+		void event_base_free(base);
+	
+	返回值：成功 0 ，失败 -1
+
+二、常规事件
+创建事件：
+	函数原型：struct event* event_new(struct event_base* base, evutil_socket_t fd, short what, event_callback_fn cb, void* arg);
+	参数：
+		base：event_base_new()的返回值
+		fd：绑定到event上的文件描述符
+		what：对应监听的事件(r、w、e)(使用 | 连接)
+			读：EV_READ
+			写：EV_WRITE
+			可持续触发：EV_PERSIST	结合event_base_dispatch使用
+		cb：监听事件满足后，回调的函数
+			void (*event_callback_fn)(evutil_socket_t fd, short what, void* arg)：
+			返回值void，参数：fd，what，arg
+		arg：回调函数的参数
+	返回值：成功创建的事件
+
+添加事件到基座(仅常规事件需要此操作)：
+	函数原型：int event_add(struct event* ev, const struct timeval* tv);
+	参数：
+		ev：event_new()的返回值
+		tv：超时时间，NULL->不会超时->一直等到事件被触发，回调函数才被调用
+		      若非0，则若等待期间事件未被触发，时间到，回调函数依旧会被调用
+	返回值：成功 0 ，失败 -1
+
+从event_base上摘下事件：(了解即可，一般不使用)
+	函数原型：int event_del(struct event* ev);
+
+释放事件：
+	函数原型：int event_free(struct event* ev);
+	返回值：成功 0 ，失败 -1
+
+未决和非未决；
+	未决：有资格被处理，但是还没有被处理
+	非未决：没有资格被处理
+
+
+三、带缓冲区的事件  #include<event2/bufferevent.h>
+bufferevent的特性：
+	1.bufferevent是带有读缓冲和写缓冲的event。由消息队列实现,【只能读取一次】，先进先出。
+	2.一旦读缓冲中有数据，则读缓冲对应的回调函数会被调用->在该回调函数中使用bufferevent_read()读取数据。
+	3.使用bufferevent_write()向写缓冲中写数据。一旦写缓冲中有数据，则会自动刷新---发送给对端。一旦发送成功，则写缓冲对应的回调函数会被调用->通知写数据完成。
+
+
+创建bufferevent：
+	函数原型：
+	struct bufferevent*  bufferevent_socket_new
+		(struct event_base* base, 
+		 evutil_socket_t fd, 
+		 enum bufferevent_options options);
+	参数：
+		base：event_base_new()的返回值
+		fd：socket的fd
+		options: 常用BEV_OPT_CLOSE_ON_FREE->释放bufferevent时----关闭底层cfd
+	返回值：成功创建的bufferevent事件对象
+
+
+释放bufferevent：
+	void bufferevent_socket_free(struct bufferevent* bev);
+
+
+给bufferevent设置回调：
+	函数原型：
+	void bufferevent_setcb(struct bufferevent* bev, 
+					     bufferevent_data_cb readcb, 
+					     bufferevent_data_cb writecb, 
+					     bufferevent event_cb eventcb, 
+					     void* cbarg);
+	参数：
+		bev：bufferevent_socket_new()的返回值
+		readcb：读缓冲对应的回调函数
+				---使用bufferevent_read()读取数据，bufferevent_write()写数据
+		writecb：通知写数据完成，不必使用，传NULL即可
+		eventcb：通用的事件回调，一般用于处理异常或通知+释放bev，可传NULL；
+		cbarg：回调函数所用的参数
+
+三个回调函数的原型：
+(writecb与readcb类型相同)
+1.readcb原型：void (*bufferevent_data_cb)(bev, arg)
+	注：
+		1.回调函数的arg即为上面的cbarg
+		2.若要在回调函数中使用arg，则需要在setcb的函数中将cbarg设置到堆区
+		+memcp拷贝数据
+	readcb内使用的读写函数：
+	1)bufferevent_read函数原型：---替代read()
+		size_t bufferevent_read(bev, void* buf, size_t bufsize);
+	2)bufferevent_write函数原型：---替代write()
+		size_t bufferevent_write(bev, const void* buf, size_t len);
+	注意：
+		1.读缓冲的数据只能读取一次
+		2.bufferevent_write的len：实际要写的大小
+
+2.eventcb原型：void (*bufferevent_event_cb)(bev,short events, arg)
+	event常用：
+		1)BEV_EVENT_CONNECTED：请求的连接过程已完成
+		2)BEV_EVENT_EOF：对端断开连接
+		3)BEV_EVENT_ERROR：连接发送错误
+	注：
+		1)参数为框架自动传递
+		2)event使用 & 进行判断
+
+禁用、启用缓冲区：
+	1.默认：新建的bufferevent：写缓冲--enable  读缓冲--disable
+	2.添加启用缓冲区：
+			void bufferevent_enable(bev , events);
+			events：EV_READ、EV_WRITE、EV_READ | EV_WRITE
+	3.添加关闭缓冲区：void bufferevent_disable(bev,events);
+	4.获取缓冲区启动状态：short bufferevent_get_enabled(bev);
+			借助 & 操作获取相关状态
+
+
+客户端：
+	socket()不变
+	connect()替换为->
+	函数原型：int bufferevent_socket_connect(struct bufferevent* bev, 
+							  		   struct sockaddr* addr, 
+							  		   int addrlen);
+	参数：
+		bev：buffervent事件对象(封装了fd)
+		addr、len：等同于connect
+
+服务器：
+#include<event2/listener.h>
+创建监听器：
+	struct evconnlistener* listener;
+	函数原型：struct evconnlistener* evconnlistener_new_bind(
+				struct event_base* base,
+				evconnlistener_cb listener_cb,
+				void* ptr,
+				unsigned flags,
+				int backlog,
+				const struct sockaddr* addr,
+				int socklen);
+	参数：
+		base：基座
+		listener_cb：监听回调函数，连接完成后回调，在其内部实现数据读写操作		ptr：回调函数的参数
+		flags：可识别的标志(可以使用 | 连接)
+			LEV_OPT_CLOSE_ON_FREE:释放bufferevent时将关闭底层套接字fd
+			LEV_OPT_REUSEABLE:端口复用   
+		backlog：listen的参2，传-1表示默认最大值
+		addr：服务器的地址结构(ip+port)
+		socklen：sizeof(sa)
+	返回值：成功创建的监听器	listener
+	作用：这一个函数，可以完成socket(),bind(),listen(),accept()	
+	注：lfd由框架创建，用户不可见
+	
+相应的回调函数listener_cb：
+	函数原型：void listener_cb(
+					struct evconnlistener* listener,
+					evutil_socket_t cfd,
+					struct sockaddr* addr,
+					int addrlen,
+					void* ptr);
+	参数：
+		listener：evconnlistener_new_bind()的返回值
+		cfd：用于通信的文件描述符(框架创建的)
+		addr：客户端的地址结构(ip+port)
+		addrlen：sizeof(addr)
+		ptr：evconnlistener_new_bind()的ptr传递进来，一般传递base基座
+	注：当连接完成后，该回调函数由框架自动调用(参数传递由框架完成)，在其内部完成数据读写操作。
+
+
+释放监听器：void evconnlitener_free(struct evconnlistener* listener);
+
+
+libevent实现TCP通信的流程：
+服务器流程：
+1.event_base_new() → 创建基座
+2.evconnlistener_new_bind() → 创建监听器（替代 socket+bind+listen+accept）
+3.event_base_dispatch() → 启动事件循环
+4.有客户端连接 → 触发 listener_cb 回调
+5.在 listener_cb 回调中：bufferevent_socket_new() → 绑定 cfd
+6.bufferevent_setcb() → 设置读 / 异常回调
+7.bufferevent_enable() → 启用读缓冲
+	注：bufferevent自动插入base中，持续监听其内部缓冲区变化
+8.客户端发数据 → 触发 read_cb 回调->调用bufferevent_read()/bufferevent_write()
+9.断开 / 出错 → 在 eventcb 中 bufferevent_socket_free()
+10.程序结束 → evconnlistener_free() + event_base_free()
+
+客户端流程：
+1.event_base_new() → 创建基座
+2.socket() → 创建客户端 cfd
+3.bufferevent_socket_new() → 绑定 cfd 和基座
+4.bufferevent_setcb() → 设置读 / 异常回调
+5.bufferevent_enable() → 启用读缓冲
+6.bufferevent_socket_connect() → 连接服务器
+7.event_base_dispatch() → 启动事件循环
+8.数据到来 → 触发 read_cb 回调->调用bufferevent_read()/bufferevent_write() 
+9.断开 / 出错 → 在 eventcb 中 bufferevent_socket_free()
+10.程序结束 → event_base_free()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

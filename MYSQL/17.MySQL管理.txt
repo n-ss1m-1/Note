@@ -1,0 +1,89 @@
+MySQL管理
+
+==========================
+系统数据库(MySQL 安装后自带 4 个系统数据库)
+数据库				含义
+mysql				存储 MySQL 服务器正常运行所需信息（时区、主从、用户、权限等）
+information_schema	提供访问数据库元数据的表和视图，包含数据库、表、字段类型及访问权限等
+performance_schema	为 MySQL 服务器运行时状态提供底层监控，收集性能参数
+sys					包含方便 DBA 和开发人员利用 performance_schema 进行性能调优和诊断的视图
+
+
+常用工具
+==========================
+mysql（客户端工具）
+语法：mysql   [options]   [database]
+核心选项：
+-u/--user=name：指定用户名
+-p/--password[=name]：指定密码
+-h/--host=name：指定服务器 IP / 域名
+-P/--port=port：指定端口
+-e/--execute=name：执行 SQL 并退出（适合批处理）
+示例：mysql -h127.0.0.1 -P3306 -uroot -p123456 db01 -e "select * from stu";
+注：选项和参数之间不能间隔空格！！！
+
+==========================
+mysqladmin（管理操作客户端）
+作用：检查服务器配置 / 状态、创建 / 删除数据库等
+常用操作：create/drop database、flush-logs、status、version、password 等
+示例：
+mysqladmin -uroot -p123456 drop 'test01';
+mysqladmin -uroot -p123456 version;
+
+==========================
+mysqlbinlog（二进制日志管理工具）
+作用：解析二进制日志文件为文本格式，用于数据恢复、审计
+语法：mysqlbinlog   [options]   log-files1   log-files2 ...
+核心选项：
+-d/--database=name：指定数据库
+-o/--offset=#：跳过前 n 行
+-r/--result-file=name：输出到文件
+-s/--short-form：显示简略格式
+--start-datetime/--stop-datetime：按时间范围过滤
+--start-position/--stop-position：按位置范围过滤
+
+==========================
+mysqlshow（对象查找工具）
+作用：快速查找数据库、表、列、索引
+核心选项：
+--count：显示统计信息（表数量、记录数）
+-i：显示状态信息
+示例：
+mysqlshow -uroot -p2143 --count
+mysqlshow -uroot -p2143 test --count
+
+==========================
+mysqldump（备份 / 迁移工具）
+作用：备份数据库或迁移数据，输出包含建表和插入语句的 SQL
+语法：
+mysqldump [options]   db_name   [tables]
+mysqldump [options]   --database/-B   db1   [db2 db3...]
+mysqldump [options]   --all-databases/-A
+连接选项：-u/-p/-h/-P
+输出选项：
+--add-drop-database：建库前加 DROP DATABASE
+--add-drop-table：建表前加 DROP TABLE（默认开启）
+-n/--no-create-db：不包含建库语句
+-t/--no-create-info：不包含建表语句
+-d/--no-data：只备份结构，不备份数据
+-T/--tab=name：分离结构（.sql）和数据（.txt）
+
+==========================
+mysqlimport/source（数据导入工具）
+
+mysqlimport：导入 mysqldump -T 导出的文本数据
+语法：mysqlimport   [options]   db_name   textfile1   [textfile2...]
+示例：mysqlimport   -uroot   -p2143   test /tmp/city.txt
+
+source：在 MySQL 客户端内导入 .sql 备份文件
+语法：source /root/xxxxx.sql
+
+
+
+
+
+
+
+
+
+

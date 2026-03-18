@@ -1,0 +1,345 @@
+多路I/O转接
+
+原理：应用程序自己监视客户端连接->内核替代应用程序监视文件
+
+对fd_set(本质：位图)进行设置的函数：
+	1.清除所有位：void FD_ZERO(fd_set * set);	->用于初始化
+	2.添加某位：void FD_SET(int fd, fd_set * set);
+	3.清除某位：void FD_CLR(int fd, fd_set * set);
+	4.查看某位是否存在：int FD_ISSET(int fd, fd_set * set);  返回值：在1，不在0
+
+select函数：#include<sys/select.h>  /  #include<unistd.h>
+	函数原型：int select(int nfds, fd_set * readfds, fd_set * writefds, fd_set * exceptfds, struct timeval * timeout);
+	参1：传入需要监听的最大fd+1(=maxfd+1)
+	参2、3、4：传入传出参数，传入分别表示 【需要监听】 读、写、异常事件的文件描述符，传出分别表示 【发生了】读、写、异常事件的文件描述符
+	一般参2和参3传入NULL
+	参4：
+		struct timeval
+		{
+			long tv_sec;
+			long tv_usec;
+		};
+		功能：对监听进行定时
+		1.NULL：永远等下去(阻塞监听)
+		2.设置timeval，监听固定时间
+		3.设置timeval里的时间均为0，非阻塞监听，轮询
+	返回值：
+		>=0：所有监听集合中，满足对应事件的总数
+		-1：异常，设置errno
+
+select实现多路IO转接服务器的思路：/root/c/tcp_socket/select_server.c
+	1.socket();					创建监听套接字
+	2.bind();						绑定地址结构
+	3.listen();						设置监听上限
+	4.select():				
+		maxfd  					当前最大的文件描述符
+		fd_set  rset, recset;			发生读事件的fd集合，需要监听的fd集合
+		FD_ZERO();				初始化fd集合
+		FD_SET();					设置lfd进入读监听集合
+		while(1)
+			rset=recset;			所有都需要监听
+			ret=select(maxfd+1, &rset, NULL, NULL, NULL);
+			if(ret>0)				发生了事件 再处理
+				if(FD_ISSET(lfd,&rset))			发生连接请求事件时：
+					cfd=accept();				监听
+					maxfd=cfd;				更新maxfd
+					FD_SET(cfd,&recset);		▲设置到需要监听的fd集合
+					if(ret==1) continue;			若仅发生连接请求(lfd) 则无需再考虑cfd
+				for(cfd=lfd+1; cfd<=maxfd; cfd++)寻找发生读事件的cfd
+					if(FD_ISSET(cfd,&rset))
+						memset(buf,0,sizeof(buf));▲先清空buf 再读取数据
+						read() toupper() write() 
+						read返回0 -> close()+FD_CLR(cfd,&recset); 客户端关闭：关闭相应cfd+移除出需要监听的fd集合
+
+优化：/root/c/tcp_socket/select_server2.c
+	添加链表 存储需要监听的cfd(在服务器长时间运行后，可能某些cfd特别大，此时for循环判断每个cfd会比较耗时，故用链表存储实际使用的cfd)
+
+select优缺点：
+	缺点：
+		1.监听上限受文件描述符限制。最大1024
+		2.检测满足条件的fd时，只能自己添加业务逻辑来提高效率，但也提高了编码难度(不代表性能低)
+	优点：
+		1.可跨平台使用
+
+常用宏：
+	BUFSIZ:8192
+	FD_SETSIZE:1024
+	INET_ADDRSTRLEN:16
+
+
+poll：#include<poll.h>
+	函数原型：int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+	参1：传入传出参数，监听的文件描述符[数组]
+		struct pollfd
+		{
+			int fd;		待监听的文件描述符
+			short events;	相应的监听事件  取值：POLLIN、POLLOUT、POLLERR
+			short revents;	传入0，返回 非0：POLLIN、POLLOUT、POLLERR
+			注： 
+				使用 POLLIN | POLLOUT 对events添加多个监听事件
+				使用 revents & POLLIN判断     
+		};
+	参2：监听数组的，实际有效监听个数
+	参3：对监听进行定时 但是与select不同
+		传入-1：阻塞等待
+		传入0：不阻塞等待，立即返回
+		传入>0：等待指定毫秒(ms)数
+	返回值：
+		>=0：所有监听集合中，满足对应事件的总数
+		-1：异常，设置errno
+
+poll的优缺点：
+	优点：
+		1.自带数组结构
+		2.将 监听事件集合 和 返回事件集合 分离
+		3.可以拓展监听上限
+	缺点：
+		1.不能跨平台(仅linux/unix)
+		2.无法直接定位满足监听事件的文件描述符，编码难度较大
+
+
+突破1024个文件描述符限制：
+	cat/proc/sys/fs/file-max ->查看计算机可以打开的文件最大个数
+	ulimit -a -> 查看当前用户下的进程，默认可以打开的fd个数(open file)
+	修改：
+		打开 vim /etc/security/limits.conf
+		写入 * soft nofile 65536		设置默认值
+			* hard nofile 100000		命令修改上限
+		使用ulimit -n xxx 进行设置
+
+epoll：#include <sys/epoll.h>
+	
+	1.创建 监听红黑树和epfd：int epoll_create(int size);
+		size：创建的红黑树的监听节点个数(仅供内核参考)
+		返回值：
+			成功：指向新创建的红黑树的根节点的epfd
+			失败：-1   errno
+
+	2.管理 监听红黑树：int epoll_ctl(int epfd, int op, int fd, struct epoll_event * event);
+		epfd：epoll_create的返回值
+		op：对红黑树要做的操作
+			1)EPOLL_CTL_ADD：添加fd 到监听红黑树
+			2)EPOLL_CTL_MOD：修改fd 在监听红黑树上的监听事件
+			3)EPOLL_CTL_DEL：删除fd
+		fd：待监听的fd
+		event：结构体【地址】，成员如下
+			1)events：EPOLLIN、EPOLLOUT、EPOLLERR   代表监听的事件
+			2)data：
+				int fd：对应监听事件的fd, 即参3
+				void* ptr：
+				uint32_t u32;
+				uint64_t u64;
+		返回值：
+			成功：指向新创建的红黑树的根节点的epfd
+			失败：-1   errno
+		
+	3.阻塞监听：int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
+		epfd：epoll_create的返回值	
+		events：结构体【数组】, 传出参数，传出 满足监听事件 的fd的event
+		maxevents：events数组的容量	
+				例：struct epoll_event events[1024];  -> maxevents=1024
+		timeout：超时时间 
+			-1：阻塞
+			0：立即返回，非阻塞
+			>0：指定毫秒(ms)
+		返回值：
+			成功：满足监听事件的fd个数
+			超时：0
+			出错：-1  errno
+
+epoll实现多路IO转接服务器的思路：
+
+epoll的优缺点：
+	优点：性能和编码高效，可以突破1024个文件描述符上限
+	缺点：不能跨平台(需要封装)
+
+
+EPOLL进阶：
+
+epoll事件模型：
+	1.LT模式：水平触发(默认)
+			缓冲区剩余未读尽的数据 会    导致epoll_wait触发
+
+	2.ET模式：边缘触发
+			缓冲区剩余未读尽的数据 不会 导致epoll_wait触发
+			->新的监听事件满足，才会再次触发
+	3.区别：
+		1.ET模式是epoll的 [高效] 模式 <- 减少epoll_wait的通知次数
+		2.但是ET模式只支持 fd---非阻塞模式->编码难度更大
+		3.同时ET模式支持只需要读取部分数据的场景
+
+	注：
+		1.ET模式需要设置成fd非阻塞的原因：如果到达的数据量>buf大小->需要使用read循环读取(否则数据可能丢失)，read循环读()+fd设置为阻塞方式->读完数据后，服务器将阻塞在read上，导致卡死。
+		2.LT模式不需要设置非阻塞的原因：即使到达的数据量>buf大小，只要内核缓冲区还有剩余数据，则会持续触发epoll_wait，然后才调用[一次]read读取，不会发生卡死
+
+	4.设置(先)非阻塞+ET模式(后挂树)：
+		#include<fcntl.h>	
+			int flag=fcntl(cfd, F_GETFL);
+			flag |= O_NONBLOCK;
+			fcntl(cfd, F_SETFL, flag);
+			+
+			struct epoll_event tmp;
+			tmp.events = EPOLLIN | EPOLLET
+			tmp.data.fd=cfd
+			epoll_ctl(epfd, EPOLL_CTL_ADD, cfd, &tmp);
+			
+
+
+epoll反应堆：
+	epoll ET模式 + 非阻塞+轮询 + void* ptr指向myevent[i](包含相应的回调函数)
+
+	添加写监听->避免客户端缓冲区满，导致阻塞或数据丢失
+	添加超时处理->提高服务器效率
+	
+	原来：
+		socket、bind、listen -- epoll_create 创建监听 红黑树 -- 返回 epfd -- 
+		epoll_ctl () 向树上添加一个监听 fd -- while (1) ---- 
+		epoll_wait 监听 -- 对应监听 fd 有事件产生 -- 返回 监听满足数组 -- 判断返回数组元素 -- lfd 满足 -- Accept -- cfd 满足-- 
+		read () -- 小 -> 大 -- write 回去。
+	反应堆：
+		不但要监听 cfd 的读事件、还要监听 cfd 的写事件。
+		socket、bind、listen -- epoll_create 创建监听 红黑树 -- 返回 epfd -- 
+		epoll_ctl () 向树上添加一个监听 fd -- while (1) ---- 
+		epoll_wait 监听 -- 对应监听 fd 有事件产生 -- 返回 监听满足数组 -- 判断返回数组元素 -- lfd 满足 -- Accept -- cfd 满足-- 
+		read () -- 小 -> 大 -- cfd 从监听红黑树上摘下 -- EPOLLOUT -- 回调函数 -- epoll_ctl () -- EPOLL_CTL_ADD 重新放到红黑上监听写事件-- 
+		等待 epoll_wait 返回 -- 说明 cfd 可写 -- write 回去 -- cfd 从监听红黑树上摘下 -- EPOLLIN-- 
+		epoll_ctl () -- EPOLL_CTL_ADD 重新放到红黑上监听读事件 -- epoll_wait 监听
+	
+	initlistensocket()函数：
+		socket()+bind()+listen()+eventset(lfd)+eventadd(lfd)
+	eventset函数：
+		初始化结构体myevent[i]
+		设置回调函数：	
+					lfd->acceptconn()
+					cfd->recvdata()
+	eventadd函数：
+		将一个fd添加到 监听红黑树。设置监听 读事件or写事件
+
+	补充：recv()和send()函数相当于read()和write()，但是只能用于tcp通信
+	
+	补充2(Reactor模型)：
+	1. 初始化：
+   	- Reactor 创建事件多路复用器（epoll_create）；
+   	- Acceptor 绑定监听端口，将「监听 FD」注册到 Reactor，关注「连接就绪事件」（EPOLLIN）；
+   	- 每个已连接 FD 对应的 Handler，注册「可读事件」（EPOLLIN）到 Reactor。
+
+	2. 事件循环（Reactor 核心）：
+   	- Reactor 调用 epoll_wait 阻塞等待事件就绪；
+  	- 当有事件触发（如新连接、数据到达），epoll_wait 返回就绪 FD 列表；
+   	- Reactor 遍历就绪事件，根据 FD 找到对应的 Handler；
+   	- Reactor 调用 Handler 的回调函数（如新连接触发 Acceptor 的 `accept_handler`，数据到达触发 `read_handler`）。
+
+	3. 回调处理（同步 I/O 关键）：
+   	- 若为「新连接事件」：Acceptor 调用 accept() 创建新连接 FD，创建对应的 Handler，将新 FD 注册到 Reactor（关注可读事件）；
+   	- 若为「可读事件」：Handler 调用 read() 从内核缓冲区拷贝数据到用户空间，处理数据后（如解析协议），若需回复，注册「可写事件」到 Reactor；
+  	- 若为「可写事件」：Handler 调用 write() 将数据拷贝到内核缓冲区，发送完成后取消「可写事件」注册（避免无限触发）。
+
+
+线程池模块分析：
+
+1.线程池结构体+单个任务的结构体：
+typedef struct {
+    void *(*function)(void *);            	/* 函数指针，回调函数 */
+    void *arg;                            		/* 上面函数的参数 */
+} threadpool_task_t;                     	/* 各子线程任务结构体 */
+
+struct threadpool_t {
+    pthread_mutex_t lock;                		/* 用于锁住本结构体 */
+    pthread_mutex_t thread_counter;    	/* busy_thr_num的锁*/
+
+    pthread_cond_t queue_not_full;        /* 当任务队列不为满时, 通知添加任务的线程 */
+    pthread_cond_t queue_not_empty;   /* 任务队列里不为空时, 通知等待任务的线程 */
+
+    pthread_t *threads;                   		/* 存放线程池中每个子线程的tid  数组 */
+    pthread_t adjust_tid;                 		/* 管理者线程的tid */
+    threadpool_task_t *task_queue;        	/* 任务队列(数组首地址) */
+
+    int min_thr_num;                      		/* 线程池最小线程数 */
+    int max_thr_num;                      		/* 线程池最大线程数 */
+    int live_thr_num;                     		/* 当前存活线程数 */
+    int busy_thr_num;                     		/* 忙状态线程个数 */
+    int wait_exit_thr_num;                		/* 要销毁的线程个数 */
+
+    int queue_front;                      		/* task_queue队头下标 */
+    int queue_rear;                       		/* task_queue队尾下标 */
+    int queue_size;                       		/* task_queue队中实际任务数 */
+    int queue_max_size;                   		/* task_queue队列可容纳任务数上限 */
+
+    int shutdown;                         		/* 标志位，线程池使用状态，true或false */
+};
+
+2.main函数
+	1)创建线程池
+	2)向线程池中添加任务(借助回调函数处理任务)
+	3)销毁线程池
+
+3.创建线程池：threadpool_t *  pthreadpool_create(int min_thr_num, int max_thr_num, int queue_max_size)：
+	1)创建线程池结构体 指针malloc
+	2)初始化线程池结构体(成员变量)
+	3)创建min_thr_num个子线程和一个管理者线程
+	4)说明：使用do...while(0)可以在出错检测中添加break，然后出错后释放开辟的所有空间
+
+3.子线程的回调函数：void* threadpool_thread(void* threadpool)：
+	1)接收参数void* arg -> 转类型为：threadpool_t *  (线程池结构体)
+	2)加锁 -> lock -> 整个结构体锁
+	3)进入等待任务的循环(判断条件变量)：
+	while(pool->queue_size==0 && !pool->shudown
+	{
+		pthread_cond_wait(&pool->queue_not_empty, &pool->lock);
+		-> 阻塞
+		若要清除指定数目的空闲线程(瘦身)：
+		if(wait_exit_thr_num>0) 
+			wait_exit_thr_num--
+			if(live_thr_num>min_thr_num)
+				live_thr_num--
+				unlock
+				pthread_exit(NULL)
+	}	
+	4)若要销毁线程池：if(shutdown) unlock+detach+pthread_exit(NULL)
+	5)从队头取出任务
+	6)更新front(%模拟环形队列) 和 size--
+	7)唤醒等待添加任务的线程：
+	8)将lock解锁
+	9)加锁 == busy_thr_num++ == 解锁
+	10)调用任务处理函数：task.function(task.arg);
+	11)加锁 == busy_thr_num-- == 解锁
+	
+
+4.管理者线程的回调函数：void* adjust_thread(void* threadpool)：
+	1)sleep()：10s执行一次
+	2)接收参数void* arg -> 转类型为：threadpool_t *  (线程池结构体)
+	3)加锁 -> lock和thread_counter(分两次加锁、解锁---最小粒度) 
+	4)获取变量：task_num、live_num、busy_num
+	5)根据既定算法，使用上述3个变量，判断是否应该创建/销毁子线程(以指定步长)
+		task_num、live_num、busy_num满足某一数量和比例：
+		线程池瘦身：加锁 -- 设置wait_exit_thr_num=10 -- 解锁 -- broadcast()
+		线程池扩容：加锁 -- 创建指定数量的子线程 -- live_num++ -- 解锁
+
+5.向线程池中添加任务：threadpool_add(threadpool_t* pool, void*(*func)(void* arg), void * arg)：
+	1)加锁 -> lock -> 整个结构体锁
+	2)进入等待任务队列空位的循环(判断条件变量)：
+	while(pool->queue_size==pool->queue_max_size && !pool->shudown)
+	{
+		pthread_cond_wait(&pool->queue_not_full, &pool->lock);
+	}	-> 阻塞
+	3)if(shutdown)：broadcast + unlock
+	4)添加任务(threadpool_task_t：func+arg)到任务队列尾部
+	5)更新rear(%模拟环形队列) 和 size++
+	6)唤醒等待处理任务的线程：pthread_cond_signal(&pool->queue_not_empty)
+	7)将lock解锁
+	
+6.线程池的销毁：int threadpool_destroy(threadpool_t * pool)：
+	1)设置shutdown=true
+	2)先销毁管理线程 join
+	3)唤醒所有子线程(broadcast) 然后子线程依据shutdown->自杀
+	4)释放线程池资源threadpool_free();
+
+7.线程池的释放：int threadpool_free(threadpool_t * pool)：
+	1)释放任务队列+子线程tid数组
+	2)销毁锁和条件变量
+	3)释放线程池
+
+
+
+
+

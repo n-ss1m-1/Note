@@ -1,0 +1,230 @@
+Socket编程
+
+socket(套接字)：
+	1.在通信过程中，socket一定是成对出现的
+	2.一个文件描述符指向一个套接字(该套接字内部由内核借助两个缓冲区实现)
+
+
+网络字节序：#include<arpa/inet.h>
+	小端法： 高位存高地址，低位存低地址(计算机本地存储)
+	大端法： 高位存低地址，低位存高地址(网络数据)
+	转换的函数：
+		1.htonl()		本地->网络(IP)       
+		2.htons()		本地->网络(port)   		
+		3.ntohl()		网络->本地(IP)
+		4.ntohs()		网络->本地(port)
+		说明：h->host to n->network  l->32位长整数   s->16位短整数
+		返回值即为结果
+
+IP地址转换函数：#include<arpa/inet.h>
+	函数原型：int inet_pton(int af, const char *src, void *dst);  本地字节序(string IP) -> 网络字节序
+	参数：
+		1.af:    AF_INET、AF_INET6
+		2.src：传入，IP地址(点分十进制 string)
+		3.dst：传出，转换后的 网络字节序 的IP地址
+	返回值：
+		成功：1   
+		异常：0，说明src指向的不是一个有效的IP地址
+		失败：-1 errno
+	函数原型：const char * inet_ntop(int af, const void* src, char * dst, socklen_t size);   网络字节序 -> 本地字节序(string IP)
+	参数：
+		1.af: 	  AF_INET、AF_INET6
+		2.src：传入，网络字节序 的IP地址
+		3.dst：传出，本地字节序 的IP地址
+		4.size：dst的大小
+	返回值：
+		成功：dst   
+		失败：NULL
+
+
+#include<sys/socket.h>
+socket函数：
+	函数原型：int socket(int domain, int type, int protocol);
+	参数：
+		参1：IP地址协议：AF_INET(IPV4)、AF_INET6(IPV6)、AF_UNIX(本地套接字)
+		参2：数据传输协议：SOCK_STREAM、SOCK_DGRAM
+		参3：代表协议，一般传入0   SOCK_STREAM->TCP、SOCK_DGRAM->UDP
+	返回值：
+		成功：新套接字所对应的文件描述符
+		失败：-1 设置errno
+
+
+bind函数： 给socket绑定一个 地址结构(IP+port)
+	函数原型：int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+	参数：
+		参1：socket() 返回值 fd 
+		参2：传入参数	
+			[struct sockaddr_in]  addr;
+			memset(&addr, 0, sizeof(addr));
+			addr.sin_family = AF_INET / AF_INET6
+			addr.sin_port = htons(9527);
+			addr.sin_addr.s_addr = htonl(INADDR_ANY); 系统自动匹配本地ip地址
+			填入：(struct sockaddr*)&addr
+			注：初始化/清空struct sockaddr_in：memset(addr,0,sizeof(addr));
+		参3：地址结构的大小 sizeof(addr)
+	返回值：
+		成功：0
+		失败：-1 ， 设置errno
+
+listen函数：设置同时与服务器建立连接的上限数(同时进行3次握手的客户端数量)
+	函数原型：int listen(int sockfd, int backlog);	
+	参数：
+		参1：socket() 返回值 fd 
+		参2：上限个数，最大值128
+	返回值：
+		成功：0
+		失败：-1 ， 设置errno
+
+accept函数：阻塞等待客户端连接，如果成功，返回服务器的 通信socket 的文件描述符
+	函数原型：int accept(int sockfd, struct sockaddr * addr, socklen_t * addrlen);
+	参数：
+		参1：监听socket()的 返回值 fd 
+		参2：传出参数，成功与服务器建立连接的 客户端的 socket的地址结构
+			填入：(struct sockaddr*)&addr
+		参3：传入传出参数，入：addr大小，出：客户端的sockaddr的实际大小
+			socklen_t clit_addr_len = sizeof(addr);
+			填入：&clit_addr_len
+	返回值：
+		成功：服务器的 通信socket 的文件描述符
+		失败：-1，设置errno
+
+connect函数：客户端使用现有的socket 与服务器建立连接
+	函数原型：int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+	参数：
+		参1：客户端的 socket() 返回值 fd
+		参2：传入参数，服务器的 监听socket 的地址结构
+			struct sockaddr_in serv_addr;
+			memset(&serv_addr, 0, sizeof(serv_addr));
+			serv_addr.sin_family=AF_INET;
+			serv_addr.sin_port=htons(SERV_PORT);
+			inet_pton(AF_INET, "服务器的IP地址", &serv_addr.sin_addr.s_addr);
+			填入：(struct sockaddr*)&serv_addr
+			注：初始化/清空struct sockaddr_in：memset(addr,0,sizeof(addr));
+		参3：服务器的 监听socket 的地址结构的大小 sizeof(addr)
+	返回值：
+		成功：0
+		失败：-1 ， 设置errno
+
+注：客户端允许不使用bind绑定客户端socket的地址结构，采用"隐式绑定"
+
+
+TCP通信流程分析(流程图)：
+	server：/root/c/tcp_socket/server.c
+		1.socket()		创建socket套接字
+		2.bind()		绑定 服务器监听socket 地址结构
+		3.listen()		设置监听上限
+		4.accept()		阻塞监听，等待客户端连接
+		5.read()		读服务器的 通信socket 获取客户端传输的数据
+		6.小写->大写 	toupper()  #include<ctype.h>
+		7.write()		向服务器的 通信socket 写数据
+		8.close() 		关闭服务器的 通信socket
+	client：/root/c/tcp_socket/client.c
+		1.socket()		创建socket套接字
+		2.connect()	与服务器建立连接(针对服务器的 监听socket)
+		3.write()		向客户端的 socket 写数据
+		4.read()		从客户端的 socket 读数据
+		5.close()		关闭客户端的 socket
+注：
+	1.read、write针对的是 通信socket
+	2.read可以使用recv()平替，write可以使用send()平替
+
+
+UDP使用的读和写函数：#include<sys/socket.h>
+1.recvfrom函数：相当于包含了accept的功能
+	函数原型：ssize_t recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr * src_addr, socklen_t * addrlen);
+	参数：
+		sockfd：套接字fd
+		buf：缓冲区
+		len：缓冲区大小/最多接收的数据大小(sizeof(buf))
+		flags：传 0
+		src_addr：传出参数，对端地址结构
+		addrlen：传入传出参数，地址结构长度(注意，传&)
+	返回值：
+		1.成功：实际接收到的字节数
+		2.失败：-1 errno
+
+2.sendto函数：相当于包含了connect的功能
+	函数原型：ssize_t sendto(int sockfd, void* buf, size_t len, int flags, struct sockaddr * dest_addr, socklen_t  addrlen);
+	参数：
+		sockfd：套接字fd
+		buf：缓冲区
+		len：实际要发送的数据大小(ret / strlen(buf))
+		flags：传 0
+		dest_addr：传入参数，目标地址结构
+		addrlen：传入参数，地址结构长度   (注意，非地址)
+	返回值：
+		1.成功：实际写入的字节数
+		2.失败：-1 errno
+
+UDP通信流程分析(流程图)：▲直接支持并发
+	server：
+		1.socket(SOCK_DGRAM);		创建cfd
+		2.bind();					绑定服务器的地址结构
+		3.while(1){
+			read(cfd);      替换为---recvfrom()
+			小->大
+			write(cfd);     替换为---sendto()
+			memset()重置缓冲区
+		}
+		4.close();
+	client：
+		1.socket(SOCK_DGRAM);		创建cfd
+		//2.bind();					绑定客户端的地址结构无效！
+		2.while(1){
+			sendto();
+			recvfrom();
+			写到屏幕
+			memset()重置缓冲区
+		}
+		3.close();
+
+
+多进程并发服务器：/root/c/tcp_socket/multi_process_server.c
+	1.socket()		创建socket套接字
+	2.bind()		绑定 服务器监听socket 地址结构
+	3.listen()		设置监听上限
+	4.while(1):
+		cfd= accept()		阻塞监听，等待客户端连接
+		pid=fork()		子进程 进行下述操作：
+		子进程：if(pid==0):
+				close(lfd);		子进程 关闭监听套接字
+				while(1):
+				read()  小写->大写  toupper()  write()  close(cfd)
+				▲read返回值为0时=读到了末尾=客户端退出=此时子进程也可以退出了
+		父进程：else if(pid>0):
+				close(cfd);	父进程 关闭通信套接字
+				//使用信号：waitpid(0,NULL,WNOHANG);
+				continue;
+	补充：
+		(在listen后)父进程注册信号捕捉函数：SIGCHLD
+		在回调函数中，完成子进程回收 while(waitpid())
+
+
+多线程并发服务器：/root/c/tcp_socket/multi_pthread_server.c
+	1.socket()		创建socket套接字
+	2.bind()		绑定 服务器监听socket 地址结构
+	3.listen()		设置监听上限
+	4.while(1):
+		cfd= accept()		阻塞监听，等待客户端连接
+		pthread_create();	创建子线程
+		/pthread_detach();	分离，自动回收
+		/pthread_join(); 	使用新线程-专用于回收子线程
+		子线程：回调函数：
+				while(1):
+				read()  小写->大写  toupper()  write()  close(cfd)
+
+
+错误处理函数的封装：
+
+read 函数的返回值：
+	1. 大于0：实际读到的字节数
+	2. 等于0：已经读到了结尾(客户端已关闭) ▲
+	3. 等于-1：进一步判断errno的值：
+		errno = EAGAIN 或 EWOULDBLOCK：设置了非阻塞读，但是没有数据到达
+		errno = EINTR：慢速系统调用被(信号等)中断
+		errno = ECONNRESET：对端主动关闭了连接 -> 需要close()+移除监听队列
+		errno = 其他 ，异常
+
+
+
+

@@ -1,0 +1,52 @@
+视图
+
+==========================
+定义：
+基于查询结果的虚拟表 不存储实际数据
+作用：
+1.简单：将复杂查询逻辑封装成视图，后续只需查询视图，无需重复写复杂 SQL
+2.安全：通过视图，用户只能查询和修改他们所能见到的数据
+3.数据独立：屏蔽真实表结构变化带来的影响(字段名称改变->只需要更改创建视图的语句+起别名)
+
+==========================
+创建：
+CREATE [OR REPLACE] VIEW 视图名称[(列名列表)] AS SELECT语句 [WITH [CASCADED | LOCAL] CHECK OPTION]
+WITH CHECK OPTION：可选，限制对视图的更新操作，确保更新后的数据仍符合视图的查询条件where：
+	LOCAL：仅检查当前视图的条件；				     =》检查本节点
+	CASCADED：级联检查所有关联视图的条件（默认）。=》检查整颗子树
+
+查询：
+查看创建视图语句：
+SHOW CREATE VIEW 视图名称;
+
+查看视图数据：
+SELECT * FROM 视图名称 ......;
+
+修改：
+方式一：
+CREATE [OR REPLACE] VIEW 视图名称[(列名列表)] AS SELECT语句 [WITH [CASCADED | LOCAL] CHECK OPTION]
+
+方式二：
+ALTER VIEW 视图名称[(列名列表)] AS SELECT语句 [WITH [CASCADED | LOCAL] CHECK OPTION]
+
+删除：
+DROP VIEW [IF EXISTS] 视图名称 [,视图名称] ...
+
+视图更新的前提：视图中的行于基础表中的行之间必须是一对一的关系
+如果视图包含以下任何一项，则该视图不可更新：
+1.聚合函数或窗口函数（SUM()、MIN()、MAX()、COUNT()等）
+2.DISTINCT
+3.GROUP BY
+4.HAVING
+5.UNION 或者 UNION ALL
+
+
+
+
+
+
+
+
+
+
+

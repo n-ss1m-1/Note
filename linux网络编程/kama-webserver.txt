@@ -1,0 +1,71 @@
+main.cc：
+1.启动日志：AsyncLogging log(LogfilePath.str(), KRollSize);
+
+2.启动内存池：memoryPool: : HashBucket: : initMemoryPool();
+
+3.启动LFU缓存：kamaCache: : KLfuCache<int, std::string>lfd(CAPACITY);
+
+4. 启动底层网络模块：
+	EventLoop loop;
+	InetAddress addr(8080);
+	EchoServer server(...);
+	server.start();
+	loop.loop();
+looping_ CAS?
+
+5.结束日志打印
+
+
+服务器初始化网络连接模块的流程：
+1.创建TcpServer和base loop(已封装成EchoServer类 构造时给TcpServer设置回调(连接状态变化、读写事件回调) 设置线程池大小) -> 启动
+2.TcpServer的构造函数中：创建(new)acceptor和threadPool->设置回调 TcpServer启动(start)中：threadpool启动 acceptor启动监听(加入任务队列？why) 
+3.threadpool启动：
+acceptor启动监听：
+
+服务器接收连接的流程：
+
+服务器发送数据流程：
+先sendInLoop 再handleWrite？？?
+
+服务器接收数据流程：
+
+服务器主动关闭的流程：
+
+服务器被动关闭连接的流程：
+
+
+
+
+
+
+
+
+/*
+问题：
+如何轮询的？：TcpServer::newConnection
+为什么任意线程可能执行任意的eventloop?
+channel：tie的作用？weak_ptr?
+inetaddr之前的内容：补充注释
+TcpConnection::handleRead 处理TCP流的粘包/拆包问题???
+epoll什么时候创建的 监听事件什么时候添加的
+主从reactor？
+使用queueInLoop避免死锁？：1.{lock swap} 2.dowork
+sizeof buf？：有时可以用 推荐使用括号()
+通过sockfd获取其绑定的本机的ip地址和端口信息：::getsockname(sockfd, (sockaddr *)&local, &addrlen)(由服务器分配)
+/
+问：为什么eventloopthread使用unique_ptr保存，而subloop使用普通的指针
+问？启动acceptor：为什么使用将listen加入任务队列的方式？--让mainloop执行？
+问：Thread::start() 为什么使用shared_ptr<thread>
+问：Channel->handleEvent()尝试将TcpConnection弱引用提升为强引用
+->保证在回调期间 该TcpConnection对象始终存活(为什么需要保证?什么时候会错误销毁?)
+问：为什么update remove采用多层封装  而不能让channel组合相应的poller对象呢
+问：什么时候设置的监听连接断开和错误事件
+
+需要补的知识：
+智能指针
+function bind封装
+lock(cpp) 即搞清楚一些函数在c和cpp中的差异
+explicit
+
+
+*/

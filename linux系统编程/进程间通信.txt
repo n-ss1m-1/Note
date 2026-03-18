@@ -1,0 +1,174 @@
+进程间通信
+常用方式及特征：
+	1.管道：简单
+	2.信号：开销小
+	3.mmap映射：可以用于非血缘关系的进程间
+	4.socket：稳定
+
+管道：	
+	1.实现原理：内核借助环形队列机制，使用内核缓冲区实现
+	2.特质：
+		1.伪文件
+		2.管道中的数据只能一次读取
+		3.数据在管道中只能 单向流动
+	3.局限性：
+		1.单方只读或只写
+		2.数据不能反复读
+		3.仅血缘关系进程间可用
+▲pipe函数▲：#include<unistd.h>
+	1.函数原型： int pipe(int fd[2])
+	2.参数：
+		fd[0]：读端
+		fd[1]：写端
+	3.返回值：
+		成功：0
+		失败：-1   errno
+
+管道的读写行为：
+	读管道：
+		1.管道有数据：read返回实际读到的字节数
+		2.管道无数据：	
+				1）无写端：read返回0
+				2）有写端：read阻塞等待
+	写管道：
+		1.无读端：异常终止
+		2.有读端：
+			1）管道已满：阻塞等待
+			2）管道未满：返回实际写出的字节个数
+
+pipe管道：只能用于有血缘关系的进程间通信：父子/兄弟
+	例：ls | wc -l       ls | wc -l |grep xxx
+	
+#include<unistd.h>   #include<sys/stat.h>
+fifo管道(管道文件)：可以用于无血缘关系的进程间通信 
+	1.创建fifo管道：mkfifo(char* pathname, 权限)；
+	2.打开读端：open ：fifo O_RDONLY
+	3.打开写端：open ：fifo O_WRONLY
+	
+文件实现进程间通信：
+	本质：打开的文件是内核中的一块缓冲区。
+		多个无血缘关系的进程，可以同时访问该文件。
+	
+▲共享内存映射▲：
+	1.头文件：#include<sys/mman.h>
+	2.函数1 (分配内存)：void * mmap(void * addr, size_t length, int prot, int flags, int fd, off_t offset);
+		参数：
+			1.addr：指定内存映射区的首地址，通常传NULL(让系统自动分配)	
+			2.length：大小(<=文件的实际大小)
+			3.prot：读写属性。PROT_READ、PROT_WRITE  使用 | 连接
+			4.flags：共享属性。MAP_SHARED(对内存映射区的修改会映射到磁盘)、MAP_PRIVATE 
+			5.fd：文件描述符
+			6.offset：文件偏移量，默认为0，必须为4096的整数倍
+		返回值：
+			1.成功：映射区的首地址 , 使用 char* p=接收
+			2.失败：MAP_FAILED , errno
+
+		优势：可以使用 p指针和string库内的函数 对文件进行读写
+
+	3.函数2 (释放内存)：int munmap(void * addr, size_t length)
+		参数：
+			1.addr：首地址(p)
+			2.length:文件实际大小( lseek(fd,0,SEEK_END) )
+		返回值：
+			1.成功：0
+			2.失败：-1
+	
+	4.注意事项：
+		1.用于创建映射区的文件实际大小=0，实际指定非0大小创建映射区->总线错误
+		2.用于创建映射区的文件实际大小=0，实际指定=0大小创建映射区->无效参数
+		3.flags=MAP_SHARED时， open至少为 可读(因为创建映射区需要读文件)，而mmap的读写权限<=open的读写权限
+		4.flags=MAP_PRIVATE时， open至少为 可读(因为创建映射区需要读文件)，而mmap的读写权限按需提供(open无写mmap可写也可行，因为此时不会将修改映射到磁盘上)
+		5.文件描述符fd，在mmpa创建映射区完成后即可关闭，后续使用地址访问文件
+		6.offset必须是4096的整数倍(因为MMU映射的最小单位是4K)
+		7.不能对映射区内存进行越界访问
+		8.munmap用于释放内存的地址，必须是mmap返回的地址
+
+	5.mmap函数的保险调用方式：	
+		1.fd=("文件名",O_RDWR);
+		2.mmap(NULL,有效文件大小，PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+
+
+文件大小拓展：	
+	1.lseek(fd,len,SEEK_END); + write(fd,"\0",1);
+	2.ftruncate(fd,len);
+
+父子进程使用mmap通信：
+	1.父进程创建映射区：open(O_RDWR) mmap(MAP_SHARED)
+	2.fork()创建子进程
+	3.一个进程读，一个进程写
+无血缘关系进程间 mmap通信：【待写】
+	1.两个进程打开同一个文件，创建内存映射区
+	2.都指定flags为 MAP_SHARED
+	3.注意：
+		mmap：数据可以重复读取
+		fifo：数据只能一次读取	
+
+mmap匿名映射区：
+	方式一：在flags设置MAP_ANON参数 + 传入fd=-1(只能用于父子进程通信)【待写】
+		        mmap(NULL, 长度任意, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANON,-1, 0);
+	方式二：使用/dev/zero文件(可以用于无血缘关系进程)【待写】
+	
+
+本地套接字：#include<sys/socket.h> #include<sys/un.h>(sockaddr_un) #include<stddef.h>(offsetof)
+对比网络编程 TCP C/S 模型，有以下不同：
+	1. int socket(int domain, int type, int protocol);
+	参数：
+		domain：AF_UNIX / AF_LOCAL
+		type：SOCK_STREAM / SOCK_DGRAM 都可以
+
+	2.地址结构：[sockaddr_un] 类型
+		struct sockaddr_un  serv_addr;
+		serv_addr.sun_family=AF_UNIX;
+		strcpy(serv_addr.sun_path, "socket文件地址");        /  不能使用=
+		//实际长度->
+		len=offsetof(struct sockaddr_un, sun_path)+strlen(serv_addr.sun_path);
+		bind(fd,(struct sockaddr*)&serv_addr, (socklen_t)len);
+	
+	3.bind()函数调用成功，会创建一个socket。因此为了保证bind成功，通常我们在bind之前，先使用 [unlink("socket文件地址")] ，避免 socket 文件残留导致bind失败。
+	
+	4.客户端也需要bind绑定地址结构，不能依赖隐式绑定
+
+
+对比：网络套接字								本地套接字
+server:
+lfd = socket(AF_INET, SOCK_STREAM, 0);				lfd = socket(AF_UNIX, SOCK_STREAM, 0);
+
+memset()-struct sockaddr_in serv_addr,clie_addr;		memset()-struct sockaddr_un serv_addr,clie_addr; serv_addr.sin_family = AF_INET;					serv_addr.sun_family = AF_UNIX;
+serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);		strcpy(serv_addr.sun_path, "套接字文件名")
+serv_addr.sin_port = htons(8888);					len = offsetof(sockaddr_un, sun_path) + strlen();
+
+bind(lfd, (struct sockaddr *)&serv_addr, sizeof());		unlink("套接字文件名");
+											bind(lfd, (struct sockaddr *)&serv_addr, len); 	
+
+Listen(lfd, 128);									Listen(lfd, 128);
+cfd = Accept(lfd, ()&clie_addr, &len);				cfd = Accept(lfd, ()&clie_addr, &len);
+
+
+client:
+lfd = socket(AF_INET, SOCK_STREAM, 0);				lfd = socket(AF_UNIX, SOCK_STREAM, 0);
+
+“隐式绑定 IP+port”							memset() ---- struct sockaddr_un clie_addr;
+											clie_addr.sun_family = AF_UNIX;
+											strcpy(clie_addr.sun_path, "client套接字文件名")
+											len = offsetof(sockaddr_un, sun_path) + strlen();
+											unlink("client套接字文件名");
+											bind(lfd, (struct sockaddr *)&clie_addr, len);
+
+memset() ---- struct sockaddr_in serv_addr;			memset() ---- struct sockaddr_un serv_addr;
+serv_addr.sin_family = AF_INET;					serv_addr.sun_family = AF_UNIX;
+inet_pton(AF_INT, "服务器IP", &sin_addr.s_addr)		strcpy(serv_addr.sun_path, "server套接字文件名")
+serv_addr.sin_port = htons("服务器端口");			len = offsetof(sockaddr_un, sun_path) + strlen();
+
+connect(lfd, &serv_addr, sizeof());					connect(lfd, &serv_addr, len);
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,40 @@
+第二天
+
+QMainWindow:
+1.菜单栏:最多有一个(set)  #include<QMenuBar>
+	创建菜单栏：QMenuBar * bar = MenuBar();     //已默认加入对象树
+	将菜单栏添加到窗口：setMenuBar(bar);
+	创建菜单：QMenu * fileMenu = bar -> addMenu("文件");
+	创建菜单项：QAction * openAction = fileMenu -> addAction("新建");
+	添加分隔线：fileMenu -> addSeparator();
+	
+	
+2.工具栏：可以有多个(add)  #include<QToolBar>
+	创建工具栏：QToolBar * toolBar = new QToolBar(this);    //手动添加到对象树
+	添加工具栏：addToolBar(默认停留区域, toolBar); 
+			默认停留区域：Qt::LeftToolBarArea  Right.. Top.. Bottom..
+	设置：
+		移动：->setMovable(bool);
+		设备浮动：->setFloatable(bool);
+		允许停留区域：->setALlowedAreas(Qt::leftToolBarArea 等)  或运算
+	添加：
+		工具项：->addAction();    可以传入已有的Action 也可以传入QString表示新建命名
+		控件：->addWidget();  例如可以传入QPushButton
+
+
+3.状态栏：最多有一个(set)  #include<QStatusBar>
+	创建菜单栏：QStatus * stBar = statusBar();   //已默认加入对象树
+	设置状态栏：setStatusBar(stBar);
+	向状态栏左侧添加信息：->addWidget(控件)      例：QLabel之类的
+	向状态栏右侧添加信息：->addPermanentWidget(控件)
+
+
+4.铆接部件(浮动窗口)  可以有多个(add)  #include<QDockWidget>
+	创建浮动窗口： = new QDockWidget(名称, this)
+	添加浮动窗口: addDockWidget(默认位置，DockWidget);
+	设置允许停靠区域：->setAllowedAreas(例：Qt::bottomDockWidgetArea  或运算)
+
+
+5.设置核心部件  最多有一个(set)
+	创建核心部件：可以是可编辑文本之类的 QTextEdit
+	添加核心部件到窗口：setCentralWidget(部件);

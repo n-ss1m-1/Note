@@ -1,0 +1,220 @@
+{
+  "main": {
+    "id": "5ed22d2c6c1e05d5",
+    "type": "split",
+    "children": [
+      {
+        "id": "03c2a2a08e451a9c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "88ce0143320ba73e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "计算机网络/基础知识/TCP与UDP.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "TCP与UDP"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "254315e867d051ae",
+    "type": "split",
+    "children": [
+      {
+        "id": "4030f1de20a434f7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1812d60c03a94c03",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "byCreatedTimeReverse",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "acbdcbb4c9c60a1f",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "05054c152355dd78",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 200
+  },
+  "right": {
+    "id": "1835b4678a42cf47",
+    "type": "split",
+    "children": [
+      {
+        "id": "3f0e3bd9e9d214cd",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "006b7329f8da7abd",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "计算机网络/基础知识/HTTP & HTTPS.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "HTTP & HTTPS 的反向链接列表"
+            }
+          },
+          {
+            "id": "f43c4a8bd0ffa5f9",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "计算机网络/基础知识/TCP与UDP.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "TCP与UDP 的出链列表"
+            }
+          },
+          {
+            "id": "c8170a2ef0edf31b",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "df28ea3ac89435b3",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "1c5ded6148608029",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "计算机网络/基础知识/TCP与UDP.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "TCP与UDP 的大纲"
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false,
+      "workspaces:管理工作区布局": false
+    }
+  },
+  "active": "88ce0143320ba73e",
+  "lastOpenFiles": [
+    "计算机网络/基础知识/TCP与UDP.md",
+    "计算机网络/图片资源/累计确认.PNG",
+    "计算机网络/图片资源/第345页-260.PNG",
+    "计算机网络/图片资源/SACK.PNG",
+    "计算机网络/图片资源/第340页-256.PNG",
+    "计算机网络/图片资源/快速重传.PNG",
+    "计算机网络/图片资源/第338页-255.PNG",
+    "计算机网络/图片资源/没有accept()可以建立连接.PNG",
+    "计算机网络/图片资源/Socket编程+TCP四次挥手.PNG",
+    "计算机网络/图片资源/Socket编程+TCP.PNG",
+    "计算机网络/图片资源/Socket编程+TCP三次握手.PNG",
+    "计算机网络/基础知识/HTTP & HTTPS.md",
+    "计算机网络/基础知识/DNS.md",
+    "计算机网络/基础知识/在浏览器中输入URL并按下回车之后会发生什么.md",
+    "算法/滑动窗口.md",
+    "未命名",
+    "算法",
+    "初始使用obsidion和markdown.md",
+    "DNS^dns-recursive.md",
+    "^dns-recursive.md",
+    "服务器.md",
+    "计算机网络/需要补充的地方.md",
+    "计算机网络/图片资源",
+    "图片资源",
+    "计算机网络(图片)",
+    "需要补充的地方.md",
+    "^8d6afe.md",
+    "欢迎.md",
+    "计算机网络/基础知识",
+    "计算机网络"
+  ]
+}

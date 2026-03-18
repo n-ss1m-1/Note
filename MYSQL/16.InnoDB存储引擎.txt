@@ -1,0 +1,215 @@
+InnoDB存储引擎
+
+==========================
+逻辑存储结构：采用分层级的存储架构
+表空间(Tablespace)→ 段(Segment)→ 区(Extent，1M)→ 页(Page，16K)→ 行(Row)
+	1.表空间(.ibd文件)
+	2.段：数据段(叶子节点)+索引段(非叶子节点)+回滚段(undo日志)
+	3.区：一个区包含64个连续页
+	4.页：数据的读写单位
+	5.行：数据存储存储单元。包含隐藏列：
+		trx_id：记录最后修改该行的事务 ID。
+		roll_pointer：指向 undo 日志，用于回滚和 MVCC 版本读取。
+
+
+==========================
+内存架构：
+1. Buffer Pool（缓冲池）
+作用：缓存磁盘上的热点数据，读写先操作内存，再异步刷盘，减少磁盘 IO，提升速度。
+管理单位：以 Page（页，默认 16K）为单位，底层用 链表 管理。
+页面状态：
+free page：空闲页，未被使用
+clean page：已使用，数据未被修改
+dirty page：脏页，已修改，与磁盘数据不一致
+
+2. Change Buffer（更改缓冲区）
+作用：针对【非唯一二级索引】，当索引页不在缓冲池时，先将 DML 变更暂存此处，待后续读取时再合并到缓冲池并刷盘。
+意义：二级索引插入 / 删除 / 更新通常是随机 IO，Change Buffer 可合并多次变更，大幅减少磁盘 IO。
+
+3. Adaptive Hash Index（自适应哈希索引）
+作用：自动监控缓冲池中的查询，对高频访问的索引页建立哈希索引，加速查询。
+特点：系统自动维护，无需人工干预，由参数 adaptive_hash_index 控制。
+
+4. Log Buffer（日志缓冲区）
+作用：缓存 redo log 和 undo log，默认大小 16MB，定期刷盘，减少日志写盘 IO。
+关键参数：
+innodb_log_buffer_size：设置日志缓冲区大小
+innodb_flush_log_at_trx_commit：控制日志刷盘时机
+0：每秒写入并刷盘
+1：每次事务提交时写入并刷盘（最安全，保证数据不丢）
+2：每次事务提交后写入，每秒刷盘（性能与安全折中）
+
+
+==========================
+磁盘结构：
+表空间类（Tablespaces）
+1.System Tablespace（系统表空间）：
+	存储 Change Buffer、数据字典、undo log（5.7 及之前）	
+	对应 ibdata1，参数 innodb_data_file_path
+2.File-Per-Table Tablespaces（单表表空间）：
+	每个表独立存储数据和索引	
+	对应 t1.ibd，参数 innodb_file_per_table=ON
+3.General Tablespaces（通用表空间）：
+	自定义共享表空间	
+	需手动 CREATE TABLESPACE 创建，建表时可指定
+4.Undo Tablespaces（撤销表空间）：
+	存储 undo log 日志	
+	初始化自动创建，默认 2 个，初始大小 16M
+5.Temporary Tablespaces（临时表空间）：
+	存储临时表、会话临时数据	
+	分全局（ibtmp1）和会话级（temp_*.ibd）
+
+核心文件与日志：
+1.Doublewrite Buffer Files（双写缓冲区）
+作用：刷脏页到磁盘前，先写入双写缓冲区文件，防止页损坏，保证数据安全。
+对应文件：ib_xxxx_0.dblwr、ib_xxxx_1.dblwr。
+
+2.Redo Log（重做日志）
+作用：实现【事务持久性】，记录数据修改，用于崩溃恢复。
+结构：内存 redo log buffer + 磁盘 redo log 文件（循环写入）。
+对应文件：ib_logfile0、ib_logfile1。
+
+
+==========================
+后台线程：
+1. Master Thread（核心线程）
+作用：InnoDB 核心后台线程，负责调度其他线程，异步将缓冲池数据刷盘，保证数据一致性。
+具体工作：脏页刷新、合并插入缓存（Change Buffer）、回收 undo 页。
+
+2. IO Thread（IO 处理线程）
+作用：使用 【AIO(异步 IO)】处理 IO 请求，负责请求回调，提升数据库性能。
+分类与职责：
+表格
+线程类型				默认个数		职责
+Read thread			4			负责读操作(磁盘->内存) (执行者)
+Write thread			4			负责写操作(内存->磁盘) (执行者)
+Log thread			1			将日志缓冲区（Log Buffer）刷新到磁盘 (调度/准备者)
+Insert buffer thread	1			将更改缓冲区（Change Buffer）内容刷新到磁盘 (调度/准备者)
+
+3. Purge Thread（清理线程）
+作用：回收已提交事务的 undo log（事务提交后，undo log 不再需要，可被清理释放空间）。
+
+4. Page Cleaner Thread（脏页清理线程）
+作用：协助 Master Thread 刷新脏页到磁盘，减轻 Master Thread 压力，减少阻塞。
+与Write thread区分：Page Cleaner Thread是脏页刷盘的调度者 / 管理者，Write thread是执行者
+
+
+==========================
+事务原理：
+1.事务的定义：一组操作的集合，是不可分割的最小工作单元，所有操作要么同时成功，要么同时失败。
+
+2.ACID 特性：
+	原子性（Atomicity）：事务是不可分割的最小操作单元，要么全部成功，要么全部失败。
+						->undo log（回滚能力）
+	一致性（Consistency）：事务完成时，必须使所有数据保持一致状态。
+						->原子性 + 隔离性 + 持久性共同保证
+	隔离性（Isolation）：数据库提供隔离机制，保证事务在独立环境下运行，不受外部并发操作影响。
+						->锁 + MVCC (undo log 支撑 MVCC)
+	持久性（Durability）：事务一旦提交或回滚，对数据的改变是永久的。
+						->redo log (崩溃恢复能力)
+
+3.redo log（重做日志）
+作用：【物理日志】，记录事务提交时数据页的物理修改，用于刷新脏页到磁盘发生错误时的数据恢复，实现事务的【持久性】。
+组成：
+	1)redo log buffer：内存中的日志缓冲。
+	2)redo log file：磁盘上的日志文件
+关键机制：
+	1)WAL（Write-Ahead Logging）：先写日志，再写磁盘，保证事务提交后修改不丢失。
+	2)【顺序读写】：日志文件是顺序写入，性能远高于数据页的随机读写。
+
+4.undo log（回滚日志）
+作用：
+	1)提供回滚：【逻辑日志】，记录数据修改前的信息(与原操作相反的逻辑)，执行 ROLLBACK 时可恢复到事务前状态，实现事务的【原子性】。
+	2)支持 MVCC（多版本并发控制）：保留旧版本数据，实现一致性读。
+销毁与存储：
+	事务提交后不会立即删除，因为可能还用于 MVCC。
+	存储在回滚段(rollback segment)中，每个回滚段包含 1024 个 undo log segment。
+
+
+
+==========================
+MVCC：
+一、基本概念
+MVCC（Multi-Version Concurrency Control，多版本并发控制）
+核心目标：维护数据多个版本，实现读写不阻塞，提升并发性能。
+依赖基础：依赖记录中的 3 个隐式字段、undo log 版本链、ReadView（读视图） 共同实现。
+
+二、两种读取方式
+当前读：	
+	定义：读取最新版本数据，加锁保证并发隔离
+	SQL：SELECT ... LOCK IN SHARE MODE、SELECT ... FOR UPDATE、UPDATE、DELETE、INSERT
+	原理：行锁 + 临键锁，防止其他事务的修改
+快照读：	
+	定义：读取可见版本（历史版本）数据，不加锁
+	SQL：普通 SELECT（不加锁）
+	原理：MVCC + undo log，生成快照读取，无锁。
+	不同隔离级别下的快照读时机：
+		RC (Read Committed)：每次执行 SELECT 都生成新的 ReadView。
+		RR (Repeatable Read)：事务中第一次执行 SELECT 时生成 ReadView，后续复用。
+		Serializable：快照读退化为当前读。
+
+三、MVCC 实现原理（三大支柱）
+1. 记录中的隐藏字段
+	DB_TRX_ID		最近修改该记录的事务 ID
+	DB_ROLL_PTR		回滚指针	指向该记录的上一个版本，形成undo log版本链
+	DB_ROW_ID		隐藏主键	表无主键时才自动生成，作为聚集索引
+
+2. undo log 版本链
+生成时机：执行 INSERT、UPDATE、DELETE 时产生。
+版本链结构：
+	每次修改记录，会生成一条新的 undo log 记录，通过 DB_ROLL_PTR 指针串联成一条链表。
+	链表头部是最新记录，尾部是最早的旧记录。
+删除策略：
+	INSERT 产生的 undo log：事务提交后可立即删除（仅用于回滚）。
+	UPDATE/DELETE 产生的 undo log：不会立即删除，因为快照读（MVCC）需要依赖它读取历史数据。
+
+3. ReadView（读视图）
+ReadView 核心字段：
+	m_ids		当前系统活跃事务 ID 集合（ReadView 生成时未提交的事务）。
+	min_trx_id	活跃事务列表中的最小值。
+	max_trx_id	预分配 ID（当前最大事务 ID + 1），代表下一个要分配的事务 ID。
+	creator_trx_id	生成该 ReadView 的事务 ID（当前事务自己的 ID）。
+
+ReadView 生成时机：
+	RC (读已提交)：每次 SELECT 都会生成新的 ReadView
+	RR (可重复读)：事务中第一次 SELECT 生成 ReadView，全程复用
+
+==========================
+脏读			读到未提交数据	数据错误			RC
+不可重复读	同一行前后值不同	逻辑不一致		RR
+幻读			两次查询行数不同	统计 / 插入异常	RR + next-key lock
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

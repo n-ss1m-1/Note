@@ -1,0 +1,185 @@
+存储过程
+==========================
+定义：存储过程是预先编译并存储在数据库中的 SQL 语句集合，本质是 SQL 层面的代码封装与复用。
+优势：简化开发、减少网络传输、提升效率
+
+==========================
+创建：
+CREATE PROCEDURE 存储过程名称([ IN/OUT/INOUT  参数名  参数类型 ])
+BEGIN
+    --	SQL语句
+END;
+
+注：
+1.IN->传入参数   OUT->传出参数   INOUT->传入传出参数
+2.在命令行中，执行创建存储过程的 SQL 时，需要通过关键字 delimiter 指定 SQL 语句的结束符。
+	例：delimiter //
+
+调用：
+CALL 名称( [参数] );
+注：传入参数->字面量变量   传出参数->使用用户变量
+
+查看：
+-- 查询指定数据库的存储过程及状态信息
+SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA='数据库名称' AND ROUTINE_NAME='存储过程名称';
+-- 查询某个存储过程的定义
+SHOW CREATE PROCEDURE 存储过程名称;
+
+删除：
+DROP PROCEDURE [IF EXISTS] 存储过程名称;
+
+
+==========================
+系统变量：
+定义：系统变量是 MySQL 服务器提供，不是用户定义的，属于服务器层面。分为全局变量（GLOBAL）、会话变量（SESSION）。
+
+查看系统变量：
+-- 查看所有系统变量
+SHOW [SESSION|GLOBAL] VARIABLES;
+
+-- 可以通过LIKE模糊匹配方式查找变量
+SHOW [SESSION|GLOBAL] VARIABLES LIKE '......';
+
+-- 查看指定变量的值
+SELECT @@[SESSION|GLOBAL] 系统变量名;
+
+设置系统变量：
+SET [SESSION|GLOBAL] 系统变量名 = 值;
+SET @@[SESSION|GLOBAL]系统变量名 = 值;
+
+注意:
+如果没有指定 SESSION/GLOBAL，默认是 SESSION（会话变量）。
+mysql 服务重新启动之后，所设置的全局参数会失效，要想不失效，可以在 /etc/my.cnf 中配置。
+
+==========================
+用户定义变量：
+定义：用户定义变量是用户根据需要自己定义的变量，用户变量不用提前声明，在用的时候直接用 @变量名 使用就可以。其作用域为当前连接/当前会话。
+赋值：
+SET @var_name  = expr   [, @var_name = expr] ...;		#x
+SET @var_name  := expr   [, @var_name := expr] ...;		#√
+
+SELECT @var_name := expr  [, @var_name := expr] ...;	（推荐使用 := 进行赋值）
+SELECT 字段名   INTO @var_name   FROM 表名;			#√
+
+使用/查看：
+SELECT @var_name;								#√
+
+注意:
+用户定义的变量无需对其进行声明或初始化，只不过获取到的值为 NULL。
+
+==========================
+局部变量
+定义：局部变量是根据需要定义的在局部生效的变量，访问之前，需要 DECLARE 声明。可用作存储过程内的局部变量和输入参数，局部变量的范围是在其内声明的 BEGIN ... END 块。
+
+声明：
+DECLARE 变量名 变量类型 [DEFAULT 默认值];
+变量类型就是数据库字段类型：INT、BIGINT、CHAR、VARCHAR、DATE、TIME 等。
+
+赋值：
+SET 变量名 = 值;
+SET 变量名 := 值;
+SELECT 字段名 INTO 变量名 FROM 表名 ...;
+
+
+==========================
+if的语法：
+IF 条件1 THEN
+	......;
+ELSEIF 条件2 THEN
+	......;
+ELSE
+	......;
+END IF;
+
+==========================
+case的语法：
+CASE
+    WHEN cond1 THEN ......;
+    [WHEN cond2 THEN .......;] ...
+    [ELSE ......;]
+END CASE;
+
+==========================
+while的语法：
+WHILE  条件  DO		-- 条件为false时，停止循环
+	......
+END WHILE;
+
+==========================
+repeat语法：
+REPEAT
+	......				-- 先循环一次，再进行条件判断
+	UNTIL  条件		-- 条件为true时，停止循环
+END REPEAT;
+
+
+
+==========================
+LOOP语法：
+[ begin_label: ]  LOOP
+    ......
+END LOOP  [ end_label ];
+
+退出循环(break)：LEAVE label;
+进入下一次循环(continue)：ITERATE label; 
+
+
+==========================
+游标：
+定义：
+游标（CURSOR）是用来存储查询结果集的数据类型，在存储过程和函数中可以使用游标对结果集进行循环的处理。
+
+声明游标：(先定义局部变量，再声明游标)
+DECLARE 游标名称 CURSOR FOR 查询语句;
+
+打开游标：
+OPEN 游标名称;
+
+(逐行)获取游标记录：
+FETCH 游标名称 INTO 变量[,变量];
+
+关闭游标：
+CLOSE 游标名称;
+
+==========================
+条件处理程序：
+定义：
+条件处理程序（Handler）可以用来定义在流程控制结构执行过程中遇到问题时相应的处理步骤。
+
+语法：
+DECLARE   handler_action   HANDLER FOR   condition_value [, condition_value] ...   statement ;
+1.handler_action：
+	CONTINUE: 继续执行当前程序
+	EXIT: 终止执行当前程序
+2.condition_value：
+	SQLSTATE   '状态码'
+	SQLWARNING: 所有以 01 开头的 SQLSTATE 代码的简写
+	NOT FOUND: 所有以 02 开头的 SQLSTATE 代码的简写
+	SQLEXCEPTION: 所有没有被 SQLWARNING 或 NOT FOUND 捕获的 SQLSTATE 代码的简写
+3.statement：
+	将执行的SQL语句
+注：先执行SQL语句，再执行handler_action
+
+==========================
+存储函数：
+定义：
+存储函数是有返回值的存储过程，存储函数的参数只能是 IN 类型的。
+
+语法：
+CREATE  FUNCTION  存储函数名称([参数列表])		-- 参数列表中不需要声明 IN
+RETURNS  返回值类型  [characteristic ...]
+BEGIN
+    -- SQL语句
+    RETURN ...;
+END;
+
+characteristic 说明：
+	DETERMINISTIC：相同的输入参数总是产生相同的结果(反例：返回now())
+	NO SQL：函数中不包含 SQL 语句
+	READS SQL DATA：包含读取数据的语句，但不包含写入数据的语句
+
+
+
+
+
+

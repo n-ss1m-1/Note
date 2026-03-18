@@ -1,0 +1,9 @@
+文件I/O
+
+open
+read
+write
+lseek
+dup
+dup2
+一些作业实践

@@ -1,0 +1,113 @@
+线程同步、互斥锁、读写锁、条件变量、信号量
+
+线程同步：对共享数据进行按需访问，防止数据混乱，产生与时间有关的错误
+锁的使用：建议锁！锁的本身不具有强制性，但是所有线程 应该 在访问公共数据之前先拿锁再访问(程序逻辑实现)
+
+#include<pthread.h>
+使用mutex(互斥量)的一般步骤：
+	1.pthread_mutex_t   lock;				创建锁（置为全局变量 共享）	
+	2.pthread_mutex_init(&lock,&attr);		动态初始化(属性attr 默认传NULL)
+	（方法二：静态 宏 pthread_mutex_t  lock = PTHREAD_MUTEX_INITIALIZER）
+	3.pthread_mutex_lock(&lock);			阻塞式加锁
+	（补充：pthread_mutex_trylock(&lock) 使用说明在下面）
+	4.访问共享数据
+	5.pthread_mutex_unlock(&lock);		解锁
+	6.pthread_mutex_destroy(&lock);		销毁锁
+	返回值：
+		成功 0，失败 errno
+	注意事项：
+		1.尽量保证锁的粒度，越小越好(访问共享数据前加锁，访问结束 [立即] 解锁)
+		2.互斥锁 本质是结构体，但是可以理解为整数0和1
+			init -> 1
+			lock     -> - - 操作 -> 0 -> 其他线程阻塞在锁上
+			unlock -> ++操作 -> 1 -> 唤醒阻塞在锁上的线程
+			trylock -> 尝试加锁 -> 成功 锁++，失败 返回错误号ret=EBUSY (且当前线程不会等待，直接继续执行后续代码 - 非阻塞式加锁)
+
+
+restrict关键字：被限定的指针变量所指向的内存操作，只能由本指针完成
+
+
+死锁：
+	定义：对锁的使用不恰当导致的结果	
+	例：
+	1.线程试图对同一个互斥量加锁两次
+	2.线程1拥有A锁，请求获得B锁，线程2拥有B锁，请求获得A锁
+
+
+读写锁：
+	加锁模式：
+		1. 读写锁只有一个：以读模式加锁 -> 读锁，以写模式加锁 -> 写锁
+		2. 读共享，写独占
+		3. 写锁优先级高▲
+	比较：
+		相较于互斥量，当读线程多时，访问效率较高
+相应变量和函数：
+	1.pthread_rwlock_t rwlock;			创建读写锁（置为全局变量 共享）
+	2.pthread_rwlock_init(&rwlock, &attr);	初始化(属性attr 默认传NULL)
+	3.pthread_rwlock_destroy(&rwlock);	销毁读写锁
+	4.pthread_rwlock_rdlock(&rwlock);		阻塞方式 加读锁
+	5.pthread_rwlock_wrlock(&rwlock);		阻塞方式 加写锁
+	6.pthread_rwlock_unlock(&rwlock);		解锁
+	7.pthread_rwlock_tryrdlock(&rwlock);	非阻塞方式 加读锁
+	8.pthread_rwlock_trywrlock(&rwlock);	非阻塞方式 加写锁
+	返回值：
+		成功 0，失败 errno
+
+
+条件变量：
+	本身不是锁，但是通常结合互斥锁使用。
+相应变量和函数：
+	1.pthread_cond_t   cond;				创建条件变量
+	2.pthread_cond_init(&cond,&attr);		动态初始化(属性attr 默认传NULL)
+	（方法二：静态 宏 pthread_cond_t  cond = PTHREAD_COND_INITIALIZER）
+	3.pthread_cond_destroy(&cond);		销毁条件变量
+	4.pthread_cond_wait(&cond,&mutex);	▲解锁-阻塞等待-(条件满足)唤醒-加锁 (原子操作！)
+	5.pthread_cond_timewait(&cond,&mutex, abs?time);+超时后不再等待
+	6.pthread_cond_signal(&cond);		▲唤醒阻塞在条件变量cond上的(至少)一个线程
+	7.pthread_cond_broadcast(&cond);		唤醒阻塞在条件变量cond上的所有线程
+	返回值：
+		成功 0，失败 errno
+
+生产者-消费者模型(条件变量+互斥锁)：/root/c/pthread/cond_producer_consumer.c
+
+
+信号量：#include<semaphore.h>
+	定义理解：1.相当于初始化值为N的互斥量, N=可以同时访问共享数据区的线程数量
+			2.与信号无关
+	应用范围：线程/进程 间同步
+相应变量和函数：
+	1.sem_t  sem;						创建信号量
+	2.sem_init(&sem, pshared, N);			初始化信号量
+		pshared：0 -> 用于线程间同步，1 -> 用于进程间同步
+		N：初始值
+	3.sem_destroy(&sem);				销毁信号量
+	4.sem_wait(&sem);					加锁，一次调用->做一次--操作，当信号量的值为 0 时，再次调用就会阻塞(对比pthread_mutex_lock)
+	5.sem_trywait(&sem);				非阻塞版本加锁
+	6.sem_timedwait(&sem,&abstime);		(绝对时间)超时就解除阻塞
+	7.sem_post(&sem);					解锁,一次调用->做一次++操作，当信号量的值为 N 时，再次调用就会阻塞(对比pthread_mutex_unlock)
+	返回值：
+		成功 0，失败 -1
+
+生产者-消费者模型(信号量+互斥锁(?))：/root/c/pthread/sem_producer_consumer.c
+单个生产者+消费者不需要互斥锁，但是多个时需要互斥锁
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,116 @@
+线程
+
+线程与进程的区别：
+	进程：有独立的 地址空间 + 有独立的 pcb(进程控制块) + 分配资源的最小单位
+	线程：没有独立的 地址空间 + 有独立的pcb + 执行任务的最小单位
+
+ps -Lf 进程id   ->   线程号(LWP)  ->  cpu执行任务的最小单位
+
+线程共享资源：
+	1.文件描述符
+	2.每种信号的处理方式
+	3.当前工作目录
+	4.用户id和组id
+	5.内存地址空间   ->  ▲线程间共享全局变量
+
+线程非共享资源：
+	1.线程id
+	2.处理器现场和栈指针(内核栈)
+	3.▲独立的栈空间(用户空间栈)
+	4.errno变量
+	5.信号屏蔽字
+	5.调度优先度
+
+线程的优点：
+	1.提高程序并发性
+	2.开销小
+	3.数据通信、共享数据方便
+线程的缺点：
+	1.库函数，不稳定
+	2.调试、编写困难，不支持gdb
+	3.对信号支持不好(谁抢到信号谁处理+独立的信号屏蔽字+共享的信号处理方式+共享的未决信号集)
+
+线程号！=线程id
+线程号： 通常指操作系统内核层面的标识符（tid）-> gettid()  -  系统内唯一
+线程 ID：指 pthread 库层面的标识符（pthread_t） -> pthread_self()  -  进程内唯一
+
+▲线程控制原语：#include<pthread.h>
+	1.
+	pthread_t pthread_self(void);     <- getpid()
+	作用：获取线程id     ->     线程id是在进程地址空间内部，用于标识线程身份的id号
+	返回值：本线程id（实际是unsigned long 类型   %lu）
+
+	2.
+	int pthread_create(pthread_t * tid, pthread_attr_t * attr, void*(*start_routine)(void*), void * arg)     <- fork()
+	参1：传出参数，新创建的子线程id
+	参2：线程属性，传NULL表示默认属性
+	参3：子线程回调函数(返回值void* + 一个参数void*)，创建子线程成功，该函数会自动调用
+	参4：参3的形参，没有就传入NULL
+		补充：使用强制转换类型+值传递传入参数    (void*)i传入   (int)arg获取
+	返回值：成功0   失败errno
+	
+	3.
+	void pthread_exit(void* retval);   	retval一般传入NULL     <- exit()
+	比较：
+		1.exit();			表示退出当前进程
+		2.return;			表示返回到调用者那去
+		3.pthread_exit();	表示退出当前线程
+	用法：在多线程环境中，尽量少用exit(这个会导致进程退出，进而导致所有线程退出)，取而代之使用pthread_exit
+
+	4.
+	int pthread_join(pthread_t tid, void** retval);     <- waitpid()    
+	参1：待回收的线程id
+	参2：是传出参数(即回调函数的返回值)，用来获取线程结束状态，调用时传入(void**)&retval(retval为指针类型)，若线程异常结束，则值为-1
+	作用：阻塞等待 回收子线程
+	返回值：成功 0，失败errno
+	
+	5.
+	int pthread_detach(pthread_t tid);	
+	作用：线程分离，一旦该线程终止，pcb资源自动回收，无需再使用pthread_join
+	返回值：成功 0，失败errno
+
+	6.
+	int pthread_cancel(pthread_t tid);     <- kill()
+	作用：杀死对应tid的线程
+	(之后也要pthread_join  回收线程  (int)retval=-1)
+	前提：需要到达取消点(进入内核的契机)才能生效，也可以手动添加取消点，使用pthread_testcancel();
+	返回值：成功 0，失败errno
+
+	7.设置线程属性(分离属性)：
+	pthread_attr_t attr;				创建线程属性结构体变量
+	pthread_attr_init(&attr);			初始化线程属性
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);	设置线程属性为 分离态
+	pthread_create(&tid,&attr,tfunc,NULL);		借助修改后的线程属性 创建分离态的新线程
+	pthread_attr_destroy(&attr);		销毁线程属性
+	返回值：成功 0，失败 errno
+	说明：▲线程设置为分离属性后，main 函数不会等待线程执行，会按自己的逻辑 “快速跑完” 并退出，进而导致整个进程终止，所有子线程也会被强制终止。
+
+线程使用的注意事项：
+	1.主线程退出其他线程不退出，则主线程调用pthread_exit(NULL);
+	2.避免僵尸线程：
+		1）pthread_join() 回收
+		2）pthread_detach() 或 pthread_create() 设置分离态，自动回收
+	3.malloc和mmap申请的内存可以被其他线程释放
+	4.应该避免在多线程模型中调用fork，除非马上exec。子进程中只会有调用fork的线程存活，其他线程在子进程中均pthread_exit()	
+	5.应避免在多线程中引入信号机制
+
+
+线程检查错误(错误码由函数返回值传递)：
+	if(ret!=0)
+	{
+		fprintf(stderr,"pthread error:%s\n", strerror(ret));
+		exit(1);
+	}
+系统调用检查错误(错误码由 errno 传递)
+	if(ret==-1)
+	{
+		perror("xxx error");
+		exit(1);
+	}
+
+
+
+
+
+
+ 
