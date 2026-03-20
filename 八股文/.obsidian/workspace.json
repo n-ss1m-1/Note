@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "计算机网络/基础知识/IP.md",
+                "file": "计算机网络/基础知识/TCP与UDP.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "IP"
+              "title": "TCP与UDP"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "计算机网络/基础知识/IP.md",
+                "file": "计算机网络/基础知识/TCP与UDP.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "IP 的反向链接列表"
+              "title": "TCP与UDP 的反向链接列表"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "计算机网络/基础知识/IP.md",
+                "file": "计算机网络/基础知识/TCP与UDP.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "IP 的出链列表"
+              "title": "TCP与UDP 的出链列表"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "计算机网络/基础知识/IP.md",
+                "file": "计算机网络/基础知识/TCP与UDP.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "IP 的大纲"
+              "title": "TCP与UDP 的大纲"
             }
           }
         ],
@@ -170,7 +170,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -184,11 +185,11 @@
       "workspaces:管理工作区布局": false
     }
   },
-  "active": "1c5ded6148608029",
+  "active": "88ce0143320ba73e",
   "lastOpenFiles": [
+    "计算机网络/基础知识/IP.md",
     "计算机网络/图片资源/ARP协议.png",
     "计算机网络/基础知识/TCP与UDP.md",
-    "计算机网络/基础知识/IP.md",
     "计算机网络/基础知识/DNS.md",
     "计算机网络/图片资源/IPv4和IPv6的首部.PNG",
     "计算机网络/图片资源/第763页-606.PNG",
@@ -201,7 +202,6 @@
     "计算机网络/需要补充的地方.md",
     "初始使用obsidion和markdown.md",
     "计算机网络/图片资源/快速恢复.PNG",
-    "计算机网络/图片资源/超时重传.PNG",
     "算法/滑动窗口.md",
     "算法/枚举右 维护左.md",
     "计算机网络/基础知识/HTTP & HTTPS.md",
