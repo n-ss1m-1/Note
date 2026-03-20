@@ -1,0 +1,3 @@
+.markdown-preview-view td {
+  white-space: nowrap; /* 禁止表格单元格文字换行 */
+}
