@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "操作系统/硬件结构.md",
+                "file": "操作系统/2.内存管理.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "硬件结构"
+              "title": "2.内存管理"
             }
           }
         ]
@@ -40,7 +40,7 @@
             "state": {
               "type": "file-explorer",
               "state": {
-                "sortOrder": "byModifiedTimeReverse",
+                "sortOrder": "alphabetical",
                 "autoReveal": false
               },
               "icon": "lucide-folder-closed",
@@ -78,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "1835b4678a42cf47",
@@ -156,13 +157,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "操作系统/硬件结构.md",
+                "file": "操作系统/2.内存管理.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "硬件结构 的大纲"
+              "title": "2.内存管理 的大纲"
             }
           }
         ],
@@ -170,8 +171,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -185,52 +185,53 @@
       "workspaces:管理工作区布局": false
     }
   },
-  "active": "1812d60c03a94c03",
+  "active": "55d399abeaecae89",
   "lastOpenFiles": [
-    "计算机网络/在浏览器中输入URL并按下回车之后会发生什么.md",
-    "计算机网络/TCP与UDP.md",
-    "计算机网络/IP.md",
-    "计算机网络/HTTP & HTTPS.md",
+    "LeetCode Hot 100/滑动窗口.md",
+    "LeetCode Hot 100/哈希.md",
+    "操作系统/3.进程与线程.md",
+    "LeetCode Hot 100",
+    "操作系统/2.内存管理.md",
+    "计算机网络/需要补充的地方.md",
+    "算法/2.枚举右 维护左.md",
+    "算法/1.滑动窗口.md",
+    "计算机网络/4.IP.md",
+    "计算机网络/3.TCP与UDP.md",
+    "计算机网络/2.HTTP & HTTPS.md",
+    "计算机网络/1.在浏览器中输入URL并按下回车之后会发生什么.md",
+    "操作系统/1.硬件结构.md",
+    "操作系统/8.Linux命令.md",
+    "操作系统/7.网络系统.md",
+    "操作系统/6.设备管理.md",
+    "操作系统/5.文件系统.md",
+    "操作系统/4.调度算法.md",
+    "操作系统/未命名.md",
+    "操作系统/图片资源/段页式内存管理.PNG",
+    "操作系统/图片资源/内核空间与用户空间-大小.PNG",
+    "操作系统/图片资源/内核空间与用户空间-不同进程.PNG",
+    "操作系统/图片资源/内核空间与用户空间-具体的用户空间.PNG",
+    "操作系统/图片资源/内核空间与用户空间3.PNG",
+    "操作系统/图片资源/内核空间与用户空间2.PNG",
+    "操作系统/图片资源/内核空间与用户空间1.PNG",
+    "操作系统/图片资源/第150页-127.PNG",
+    "操作系统/图片资源/第149页-126.PNG",
+    "操作系统/图片资源/第148页-125.PNG",
+    "操作系统/图片资源",
+    "操作系统/新建文件夹",
     "计算机网络/DNS.md",
     "计算机网络/基础知识/TCP与UDP.md",
-    "操作系统/硬件结构.md",
-    "操作系统/Linux命令.md",
-    "操作系统/网络系统.md",
-    "操作系统/设备管理.md",
-    "操作系统/文件系统.md",
-    "操作系统/调度算法.md",
-    "操作系统/进程与线程.md",
-    "操作系统/内存管理.md",
     "操作系统",
     "计算机网络/基础知识/IP.md",
     "规划/LeetCode Hot100 14天规划.md",
     "规划/接下来两周的总规划.md",
     "规划",
-    "计算机网络/需要补充的地方.md",
     "计算机网络/基础知识/HTTP & HTTPS.md",
-    "计算机网络/图片资源/IGMP作用范围.PNG",
-    "计算机网络/图片资源/IGMP.PNG",
-    "计算机网络/图片资源/第778页-615.PNG",
-    "计算机网络/图片资源/NAPT.PNG",
-    "计算机网络/图片资源/第774页-612.PNG",
-    "计算机网络/图片资源/DHCP流程.PNG",
-    "计算机网络/图片资源/DHCP.PNG",
-    "计算机网络/图片资源/第769页-609.PNG",
-    "计算机网络/图片资源/ARP协议.png",
     "计算机网络/基础知识/DNS.md",
-    "计算机网络/图片资源/IPv4和IPv6的首部.PNG",
     "初始使用obsidion和markdown.md",
-    "算法/滑动窗口.md",
-    "算法/枚举右 维护左.md",
-    "计算机网络/基础知识/在浏览器中输入URL并按下回车之后会发生什么.md",
-    "未命名",
     "算法",
-    "DNS^dns-recursive.md",
-    "^dns-recursive.md",
     "计算机网络/图片资源",
     "图片资源",
     "计算机网络(图片)",
-    "计算机网络/基础知识",
-    "计算机网络"
+    "计算机网络/基础知识"
   ]
 }
