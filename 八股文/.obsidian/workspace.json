@@ -22,35 +22,21 @@
             }
           },
           {
-            "id": "248e984d7f0fd739",
+            "id": "2dc32816489e29dc",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "计算机网络/3.TCP与UDP.md",
+                "file": "MySQL/5.日志篇.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "3.TCP与UDP"
-            }
-          },
-          {
-            "id": "affdf0cb046bdf4c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "MySQL/1.基础篇.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "1.基础篇"
+              "title": "5.日志篇"
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -107,7 +93,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "1835b4678a42cf47",
@@ -185,13 +172,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "MySQL/1.基础篇.md",
+                "file": "MySQL/5.日志篇.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "1.基础篇 的大纲"
+              "title": "5.日志篇 的大纲"
             }
           }
         ],
@@ -199,7 +186,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -213,48 +201,48 @@
       "workspaces:管理工作区布局": false
     }
   },
-  "active": "affdf0cb046bdf4c",
+  "active": "2dc32816489e29dc",
   "lastOpenFiles": [
-    "计算机网络/3.TCP与UDP.md",
-    "规划/今日规划.md",
-    "MySQL/1.基础篇.md",
-    "MySQL/7.架构篇.md",
-    "MySQL/4.锁篇.md",
-    "MySQL/需要补充的地方.md",
+    "MySQL/图片资源/两阶段提交流程.PNG",
+    "MySQL/图片资源/第322页-261.PNG",
+    "MySQL/图片资源/主从库配合.PNG",
+    "MySQL/图片资源/第317页-259.PNG",
+    "MySQL/图片资源/主从复制流程.PNG",
+    "MySQL/图片资源/第316页-258.PNG",
+    "操作系统/2.内存管理.md",
     "MySQL/5.日志篇.md",
+    "操作系统/5.文件系统.md",
+    "MySQL/图片资源/redolog存储结构.PNG",
+    "操作系统/7.网络系统.md",
+    "MySQL/图片资源/第313页-257.PNG",
+    "MySQL/图片资源/innodb_flush_log_at_trx_commit 的刷盘时机.PNG",
+    "MySQL/图片资源/第311页-254.PNG",
+    "MySQL/图片资源/redolog持久化策略.PNG",
+    "MySQL/4.锁篇.md",
+    "规划/今日规划.md",
+    "计算机网络/需要补充的地方.md",
+    "LeetCode Hot 100/动态规划.md",
+    "计算机网络/计算机网络面试高频知识点.md",
+    "计算机网络/2.HTTP & HTTPS.md",
+    "计算机网络/3.TCP与UDP.md",
+    "计算机网络/4.IP.md",
+    "规划/MySQL学习规划.md",
+    "MySQL/需要补充的地方.md",
     "MySQL/3.事务篇.md",
     "MySQL/2.索引篇.md",
+    "MySQL/1.基础篇.md",
+    "MySQL/7.架构篇.md",
     "MySQL/6.内存篇.md",
-    "MySQL/图片资源/Compact行格式结构.PNG",
-    "MySQL/图片资源/Compact.PNG",
-    "MySQL/图片资源/第29页-25.PNG",
-    "MySQL/图片资源/执行select的流程.PNG",
-    "MySQL/图片资源/第7页-9.PNG",
     "MySQL/图片资源",
     "MySQL/新建文件夹",
-    "规划/MySQL学习规划.md",
-    "计算机网络/需要补充的地方.md",
-    "计算机网络/2.HTTP & HTTPS.md",
-    "操作系统/5.文件系统.md",
-    "操作系统/7.网络系统.md",
-    "操作系统/2.内存管理.md",
     "操作系统/3.进程与线程.md",
-    "计算机网络/4.IP.md",
     "操作系统/操作系统面试高频知识点.md",
     "操作系统/6.设备管理.md",
     "计算机网络/1.在浏览器中输入URL并按下回车之后会发生什么.md",
     "MySQL",
     "C++/C++的重点和补充.md",
     "操作系统/4.调度算法.md",
-    "操作系统/1.硬件结构.md",
-    "规划/LeetCode Hot100 14天规划.md",
-    "操作系统/需要补充的地方.md",
     "C++",
-    "操作系统/图片资源/传统文件传输.PNG",
-    "操作系统/图片资源/中断处理流程.PNG",
-    "操作系统/图片资源/中断处理流程.png",
-    "操作系统/图片资源/设备驱动程序.PNG",
-    "操作系统/图片资源/第350页-260.PNG",
     "LeetCode Hot 100/图片资源",
     "LeetCode Hot 100/新建文件夹",
     "LeetCode Hot 100",
