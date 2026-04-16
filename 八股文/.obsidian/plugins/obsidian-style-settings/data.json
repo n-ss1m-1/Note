@@ -1,0 +1,11 @@
+{
+  "anuppuccin-theme-settings@@file-line-width": 800,
+  "anuppuccin-theme-settings@@anp-custom-checkboxes": true,
+  "anuppuccin-theme-settings@@anp-callout-color-toggle": true,
+  "anuppuccin-theme-settings@@anp-table-toggle": true,
+  "anuppuccin-theme-settings@@anp-table-width": true,
+  "anuppuccin-theme-settings@@anp-table-auto": true,
+  "anuppuccin-theme-settings@@anp-color-transition-toggle": true,
+  "anuppuccin-theme-settings@@anp-rainbow-file-toggle": true,
+  "anuppuccin-theme-settings@@anuppuccin-theme-light": "ctp-latte"
+}

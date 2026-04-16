@@ -1,5 +1,7 @@
 {
   "enabledCssSnippets": [
     "no-wrap-table"
-  ]
+  ],
+  "cssTheme": "AnuPpuccin",
+  "theme": "obsidian"
 }
