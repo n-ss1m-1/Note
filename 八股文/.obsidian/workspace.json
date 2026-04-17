@@ -22,20 +22,49 @@
             }
           },
           {
-            "id": "600fb57779ac4b43",
+            "id": "d398e45632bfddc7",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "C++/C++锁的API.md",
+                "file": "计算机网络/2.HTTP & HTTPS.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "C++锁的API"
+              "title": "2.HTTP & HTTPS"
+            }
+          },
+          {
+            "id": "028ecb5de8f82ab2",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "计算机网络/1.在浏览器中输入URL并按下回车之后会发生什么.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "1.在浏览器中输入URL并按下回车之后会发生什么"
+            }
+          },
+          {
+            "id": "a9381d05efc579af",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "计算机网络/3.TCP与UDP.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "3.TCP与UDP"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -92,8 +121,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "1835b4678a42cf47",
@@ -171,13 +199,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "规划/今日规划.md",
+                "file": "计算机网络/2.HTTP & HTTPS.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "今日规划 的大纲"
+              "title": "2.HTTP & HTTPS 的大纲"
             }
           }
         ],
@@ -185,8 +213,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -201,10 +228,14 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "367c66e2ba01b9fb",
+  "active": "d398e45632bfddc7",
   "lastOpenFiles": [
-    "C++/C++锁的API.md",
     "规划/今日规划.md",
+    "计算机网络/2.HTTP & HTTPS.md",
+    "计算机网络/1.在浏览器中输入URL并按下回车之后会发生什么.md",
+    "计算机网络/3.TCP与UDP.md",
+    "操作系统/3.进程与线程.md",
+    "C++/C++锁的API.md",
     "C++/STL.md",
     "C++/右值引用、移动语义、完美转发.md",
     "操作系统/5.文件系统.md",
@@ -212,7 +243,6 @@
     "C++/智能指针的区别对比+高频面试题.md",
     "操作系统/2.内存管理.md",
     "操作系统/4.调度算法.md",
-    "操作系统/3.进程与线程.md",
     "项目说明.md",
     "简历.md",
     "C++/C++的重点和补充.md",
@@ -221,8 +251,6 @@
     "MySQL/3.事务篇.md",
     "MySQL/2.索引篇.md",
     "MySQL/1.基础篇.md",
-    "计算机网络/2.HTTP & HTTPS.md",
-    "计算机网络/3.TCP与UDP.md",
     "未命名思维导图.md",
     "未命名.base",
     "未命名.canvas",
@@ -231,7 +259,6 @@
     "计算机网络/需要补充的地方.md",
     "操作系统/图片资源/块组.PNG",
     "LeetCode Hot 100/算法/1.滑动窗口.md",
-    "欢迎.md",
     "MySQL/图片资源/唯一索引加锁流程图.PNG",
     "MySQL/图片资源/非唯一索引加锁流程图.PNG",
     "MySQL/图片资源/第240页-200.PNG",
