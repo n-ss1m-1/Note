@@ -4,6 +4,8 @@
 	进程：活的，是运行起来的程序，占用内存、CPU等资源
 
 
+#include <unistd.h>
+#include <sys/types.h>  // 用于 pid_t
 ▲fork函数：
 	1.函数原型： pid_t fork(void)
 	2.创建子进程，父子进程各自返回：父进程返回子进程pid，子进程返回得到0
@@ -20,8 +22,9 @@
 	2.文件描述符、mmap映射区
 
 
+#include <unistd.h>
 ▲exec函数族：
-	1.作用：使进程执行某一程序。	
+	1.作用：使进程执行某一程序。如果 exec 成功，下面的代码不会执行
 	2.返回值：成功无返回值，失败返回-1
 	3.函数原型：
 		1）int execlp(const char * file,const char * arg, ...)   一般用于内置命令
@@ -33,8 +36,8 @@
 		2）int execl(const char * path,const char * arg, ...) 一般用于自定义的程序
 		3）int execvp()
 		说明：
-			p：会根据PATH环境变量寻找参数
-			l：逐个填入arg，且必须以NULL作为最后一个参数
+			p：会根据PATH环境变量寻找参数->执行系统命令
+			l：逐个填入arg，且必须以NULL作为最后一个参数->执行当前目录程序
 			v：可以以数组形式填入参数
 
 

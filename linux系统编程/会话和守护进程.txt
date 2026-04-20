@@ -19,7 +19,7 @@
 	2.子进程调用 setsid() 创建新会话
 	3.根据需要，改变工作目录 chdir(path) -> 防止占用可卸载的文件系统
 	4.根据需要，重设umask掩码 #include<sys/stat.h> umask(0022)  
-	5.关闭close() / 重定向到/dev/null(先打开) 文件描述符012 dup2()
+	5.文件描述符012：使用close()关闭 或 使用dup2()重定向到/dev/null(需要先打开)  
 	6.守护进程业务逻辑 while()
 
 ps -ajx ：  PPID  PID  PGID  SID(会话 ID)
