@@ -6,9 +6,6 @@
 
 #### 头文件
 
-c
-
-运行
 
 ```
 #include <sys/socket.h>
@@ -16,9 +13,6 @@ c
 
 #### 函数原型
 
-c
-
-运行
 
 ```
 int socket(int domain, int type, int protocol);
@@ -26,7 +20,6 @@ int socket(int domain, int type, int protocol);
 
 #### 参数说明
 
-表格
 
 |参数|说明|
 |---|---|
@@ -35,8 +28,6 @@ int socket(int domain, int type, int protocol);
 |protocol|协议：<br><br>0 - 默认协议（推荐）<br><br>IPPROTO_TCP - TCP<br><br>IPPROTO_UDP - UDP|
 
 #### 返回值
-
-表格
 
 |返回值|说明|
 |---|---|
@@ -51,11 +42,7 @@ int socket(int domain, int type, int protocol);
 
 需要手动关闭：close (fd)
 
-#### 代码示例
-
-c
-
-运行
+#### x代码示例x
 
 ```
 #include <sys/socket.h>
@@ -95,19 +82,11 @@ int main() {
 
 #### 头文件
 
-c
-
-运行
-
 ```
 #include <sys/socket.h>
 ```
 
 #### 函数原型
-
-c
-
-运行
 
 ```
 int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
@@ -115,17 +94,13 @@ int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 
 #### 参数说明
 
-表格
-
-|参数|说明|
-|---|---|
-|sockfd|socket () 返回的文件描述符|
-|addr|指向地址结构的指针（struct sockaddr_in 或 struct sockaddr_in6）|
-|addrlen|地址结构的大小|
+| 参数      | 说明                                                      |
+| ------- | ------------------------------------------------------- |
+| sockfd  | socket () 返回的文件描述符                                      |
+| addr    | 指向地址结构的指针（**struct sockaddr_in** 或 struct sockaddr_in6） |
+| addrlen | 地址结构的大小                                                 |
 
 #### 返回值
-
-表格
 
 |返回值|说明|
 |---|---|
@@ -140,15 +115,11 @@ int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 
 INADDR_ANY 表示绑定到所有可用的网络接口
 
-#### 代码示例
-
-c
-
-运行
+#### x代码示例x
 
 ```
 #include <sys/socket.h>
-#include <netinet/in.h>
+#include <netinet/in.h>         //struct sockaddr_in
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -191,19 +162,11 @@ int main() {
 
 #### 头文件
 
-c
-
-运行
-
 ```
 #include <sys/socket.h>
 ```
 
 #### 函数原型
-
-c
-
-运行
 
 ```
 int listen(int sockfd, int backlog);
@@ -211,16 +174,12 @@ int listen(int sockfd, int backlog);
 
 #### 参数说明
 
-表格
-
-|参数|说明|
-|---|---|
-|sockfd|已绑定的套接字文件描述符|
-|backlog|连接队列的最大长度（通常设为 128）|
+| 参数      | 说明                   |
+| ------- | -------------------- |
+| sockfd  | 已绑定的套接字文件描述符         |
+| backlog | 全连接队列的最大长度（通常设为 128） |
 
 #### 返回值
-
-表格
 
 |返回值|说明|
 |---|---|
@@ -233,17 +192,13 @@ int listen(int sockfd, int backlog);
 
 仅用于 TCP 服务器
 
-backlog 指定了未完成连接队列的最大长度
+backlog 指定了全连接队列的最大长度
 
-#### 代码示例
-
-c
-
-运行
+#### x代码示例x
 
 ```
 #include <sys/socket.h>
-#include <netinet/in.h>
+#include <netinet/in.h>         //struct sockaddr_in
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -294,19 +249,11 @@ int main() {
 
 #### 头文件
 
-c
-
-运行
-
 ```
 #include <sys/socket.h>
 ```
 
 #### 函数原型
-
-c
-
-运行
 
 ```
 int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
@@ -314,22 +261,18 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 
 #### 参数说明
 
-表格
-
-|参数|说明|
-|---|---|
-|sockfd|监听套接字的文件描述符|
-|addr|传出参数，客户端地址结构|
-|addrlen|传入传出参数，地址结构的大小|
+| 参数      | 说明                 |
+| ------- | ------------------ |
+| sockfd  | 监听套接字的文件描述符        |
+| addr    | **传出参数**，客户端地址结构   |
+| addrlen | **传入传出参数**，地址结构的大小 |
 
 #### 返回值
 
-表格
-
-|返回值|说明|
-|---|---|
-|> 0|成功：返回新的通信套接字文件描述符|
-|-1|失败，设置 errno|
+| 返回值 | 说明                    |
+| --- | --------------------- |
+| > 0 | 成功：**返回新的通信套接字文件描述符** |
+| -1  | 失败，设置 errno           |
 
 #### 特性
 
@@ -339,20 +282,16 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 
 原来的监听套接字继续监听新的连接
 
-#### 代码示例
-
-c
-
-运行
+#### √代码示例√
 
 ```
 #include <sys/socket.h>
-#include <netinet/in.h>
+#include <netinet/in.h>         //struct sockaddr_in
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <arpa/inet.h>
+#include <arpa/inet.h>          //inet_ntop()和inet_pton()
 
 #define PORT 8888
 
@@ -360,7 +299,7 @@ int main() {
     int listenfd, connfd;
     struct sockaddr_in serv_addr, cli_addr;
     socklen_t cli_len;
-    char cli_ip[INET_ADDRSTRLEN];
+    char cli_ip[INET_ADDRSTRLEN];        //INET_ADDRSTRLEN：16
     
     // 创建监听套接字
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -373,7 +312,7 @@ int main() {
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
-    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);    //INADDR_ANY 表示绑定到所有可用的网络接口
     
     if (bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) == -1) {
         perror("bind error");
@@ -416,9 +355,6 @@ int main() {
 
 #### 头文件
 
-c
-
-运行
 
 ```
 #include <sys/socket.h>
@@ -426,9 +362,6 @@ c
 
 #### 函数原型
 
-c
-
-运行
 
 ```
 int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
@@ -436,17 +369,13 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 
 #### 参数说明
 
-表格
-
-|参数|说明|
-|---|---|
-|sockfd|客户端套接字文件描述符|
-|addr|服务器地址结构|
-|addrlen|地址结构的大小|
+| 参数      | 说明              |
+| ------- | --------------- |
+| sockfd  | **客户端**套接字文件描述符 |
+| addr    | **服务器**地址结构     |
+| addrlen | 地址结构的大小         |
 
 #### 返回值
-
-表格
 
 |返回值|说明|
 |---|---|
@@ -461,11 +390,7 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 
 TCP 三次握手在此函数中完成
 
-#### 代码示例
-
-c
-
-运行
+#### √代码示例√
 
 ```
 #include <sys/socket.h>
@@ -522,9 +447,6 @@ int main() {
 
 #### 头文件
 
-c
-
-运行
 
 ```
 #include <unistd.h>      // read()
@@ -532,10 +454,6 @@ c
 ```
 
 #### 函数原型
-
-c
-
-运行
 
 ```
 ssize_t read(int fd, void *buf, size_t count);
@@ -555,27 +473,21 @@ ssize_t recv(int sockfd, void *buf, size_t len, int flags);
 
 #### 返回值
 
-表格
-
-|返回值|说明|
-|---|---|
-|> 0|成功：实际接收到的字节数|
-|0|对端关闭连接|
-|-1|失败，设置 errno|
+| 返回值 | 说明           |
+| --- | ------------ |
+| > 0 | 成功：实际接收到的字节数 |
+| 0   | **对端关闭连接**   |
+| -1  | 失败，设置 errno  |
 
 #### 特性
 
-read () 是通用的文件读取函数
+read () 是**通用**的文件读取函数
 
-recv () 是专门用于套接字的函数，支持更多标志位
+recv () 是**专门用于套接字**的函数，支持更多标志位
 
 阻塞模式下会等待数据到达
 
 #### 代码示例
-
-c
-
-运行
 
 ```
 #include <sys/socket.h>
@@ -620,10 +532,6 @@ void handle_client(int connfd) {
 
 #### 头文件
 
-c
-
-运行
-
 ```
 #include <unistd.h>      // write()
 #include <sys/socket.h>  // send()
@@ -631,18 +539,12 @@ c
 
 #### 函数原型
 
-c
-
-运行
-
 ```
 ssize_t write(int fd, const void *buf, size_t count);
 ssize_t send(int sockfd, const void *buf, size_t len, int flags);
 ```
 
 #### 参数说明
-
-表格
 
 |参数|说明|
 |---|---|
@@ -653,8 +555,6 @@ ssize_t send(int sockfd, const void *buf, size_t len, int flags);
 
 #### 返回值
 
-表格
-
 |返回值|说明|
 |---|---|
 |> 0|成功：实际发送的字节数|
@@ -662,17 +562,13 @@ ssize_t send(int sockfd, const void *buf, size_t len, int flags);
 
 #### 特性
 
-write () 是通用的文件写入函数
+write () 是**通用**的文件写入函数
 
-send () 是专门用于套接字的函数，支持更多标志位
+send () 是**专门用于套接字**的函数，支持更多标志位
 
-可能只发送部分数据，需要循环发送
+**可能只发送部分数据，需要循环发送**
 
 #### 代码示例
-
-c
-
-运行
 
 ```
 #include <sys/socket.h>
@@ -729,19 +625,11 @@ int main() {
 
 #### 头文件
 
-c
-
-运行
-
 ```
 #include <sys/socket.h>
 ```
 
 #### 函数原型
-
-c
-
-运行
 
 ```
 ssize_t recvfrom(int sockfd, void *buf, size_t len, int flags,
@@ -749,8 +637,6 @@ ssize_t recvfrom(int sockfd, void *buf, size_t len, int flags,
 ```
 
 #### 参数说明
-
-表格
 
 |参数|说明|
 |---|---|
@@ -763,8 +649,6 @@ ssize_t recvfrom(int sockfd, void *buf, size_t len, int flags,
 
 #### 返回值
 
-表格
-
 |返回值|说明|
 |---|---|
 |> 0|成功：实际接收到的字节数|
@@ -776,13 +660,9 @@ ssize_t recvfrom(int sockfd, void *buf, size_t len, int flags,
 
 同时获取发送方的地址信息
 
-无连接，不需要 accept ()
+无连接，不需要 listen()和accept ()
 
 #### 代码示例
-
-c
-
-运行
 
 ```
 #include <sys/socket.h>
@@ -862,19 +742,11 @@ int main() {
 
 #### 头文件
 
-c
-
-运行
-
 ```
 #include <sys/socket.h>
 ```
 
 #### 函数原型
-
-c
-
-运行
 
 ```
 ssize_t sendto(int sockfd, const void *buf, size_t len, int flags,
@@ -882,8 +754,6 @@ ssize_t sendto(int sockfd, const void *buf, size_t len, int flags,
 ```
 
 #### 参数说明
-
-表格
 
 |参数|说明|
 |---|---|
@@ -895,8 +765,6 @@ ssize_t sendto(int sockfd, const void *buf, size_t len, int flags,
 |addrlen|地址结构大小|
 
 #### 返回值
-
-表格
 
 |返回值|说明|
 |---|---|
@@ -912,10 +780,6 @@ ssize_t sendto(int sockfd, const void *buf, size_t len, int flags,
 无连接，不需要 connect ()
 
 #### 代码示例
-
-c
-
-运行
 
 ```
 #include <sys/socket.h>
@@ -1000,19 +864,11 @@ int main() {
 
 #### 头文件
 
-c
-
-运行
-
 ```
 #include <arpa/inet.h>
 ```
 
 #### 函数原型
-
-c
-
-运行
 
 ```
 uint32_t htonl(uint32_t hostlong);   // host to network long (32位)
@@ -1022,8 +878,6 @@ uint16_t ntohs(uint16_t netshort);   // network to host short
 ```
 
 #### 参数说明
-
-表格
 
 |参数|说明|
 |---|---|
@@ -1043,10 +897,6 @@ uint16_t ntohs(uint16_t netshort);   // network to host short
 用于端口号和 IP 地址的转换
 
 #### 代码示例
-
-c
-
-运行
 
 ```
 #include <arpa/inet.h>
@@ -1082,19 +932,11 @@ int main() {
 
 #### 头文件
 
-c
-
-运行
-
 ```
 #include <arpa/inet.h>
 ```
 
 #### 函数原型
-
-c
-
-运行
 
 ```
 int inet_pton(int af, const char *src, void *dst);
@@ -1102,8 +944,6 @@ const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);
 ```
 
 #### 参数说明
-
-表格
 
 |函数|参数|说明|
 |---|---|---|
@@ -1116,8 +956,6 @@ const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);
 ||size|dst 缓冲区的大小|
 
 #### 返回值
-
-表格
 
 |函数|返回值|说明|
 |---|---|---|
@@ -1137,10 +975,6 @@ inet_ntop：二进制 -> 字符串（Network to Presentation）
 
 #### 代码示例
 
-c
-
-运行
-
 ```
 #include <arpa/inet.h>
 #include <stdio.h>
@@ -1148,7 +982,7 @@ c
 
 int main() {
     struct in_addr ip_addr;
-    char ip_str[INET_ADDRSTRLEN];
+    char ip_str[INET_ADDRSTRLEN];          // INET_ADDRSTRLEN：16字节
     
     // 字符串 -> 二进制
     const char *ip_string = "192.168.1.100";
@@ -1176,10 +1010,6 @@ int main() {
 ## 📚 四、完整 TCP 服务器和客户端示例
 
 ### 💡 TCP 服务器完整示例
-
-c
-
-运行
 
 ```
 #include <sys/socket.h>
@@ -1328,10 +1158,6 @@ int main() {
 
 ### 💡 TCP 客户端完整示例
 
-c
-
-运行
-
 ```
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -1386,8 +1212,9 @@ int main() {
         fgets(send_buf, BUFFER_SIZE, stdin);
         
         // 去除换行符
-        send_buf[strcspn(send_buf, "\n")] = '\0';
+        send_buf[strcspn(send_buf, "\n")] = '\0';   //返回值：s1开头连续不包含s2中任何字符的字符个数
         
+        // 判断是否退出
         if (strcmp(send_buf, "quit") == 0) {
             break;
         }
@@ -1602,10 +1429,6 @@ int main() {
 
 ## 📚 六、多线程并发服务器示例
 
-c
-
-运行
-
 ```
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -1764,10 +1587,6 @@ int main() {
 
 ## 📚 七、错误处理函数封装
 
-c
-
-运行
-
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -1865,8 +1684,6 @@ ssize_t recv_all(int sockfd, void *buf, size_t len) {
 
 ## 📊 Socket 函数总结表
 
-表格
-
 |函数|用途|适用协议|阻塞 / 非阻塞|
 |---|---|---|---|
 |socket()|创建套接字|TCP/UDP|-|
@@ -1884,10 +1701,6 @@ ssize_t recv_all(int sockfd, void *buf, size_t len) {
 
 1. **端口被占用**
 
-c
-
-运行
-
 ```
 // 解决方案：设置 SO_REUSEADDR 选项
 int opt = 1;
@@ -1895,10 +1708,6 @@ setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 ```
 
 2. **读取返回 0**
-
-c
-
-运行
 
 ```
 // 表示对端关闭连接
@@ -1910,10 +1719,6 @@ if (n == 0) {
 
 3. **被信号中断**
 
-c
-
-运行
-
 ```
 // 处理 EINTR 错误
 if (errno == EINTR) {
@@ -1922,10 +1727,6 @@ if (errno == EINTR) {
 ```
 
 4. **僵尸进程**
-
-c
-
-运行
 
 ```
 // 多进程服务器：注册 SIGCHLD 信号处理
@@ -1937,10 +1738,6 @@ void sigchld_handler(int sig) {
 ```
 
 5. **资源泄漏**
-
-c
-
-运行
 
 ```
 // 确保关闭所有套接字

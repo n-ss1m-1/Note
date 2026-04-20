@@ -6,30 +6,20 @@
 
 #### 头文件
 
-c
-
-运行
-
 ```
 #include <sys/select.h>
 ```
 
 #### 函数原型
 
-c
-
-运行
-
 ```
-void FD_ZERO(fd_set *set);      // 清除所有位
+void FD_ZERO(fd_set *set);           // 清除所有位
 void FD_SET(int fd, fd_set *set);    // 添加某位
 void FD_CLR(int fd, fd_set *set);    // 清除某位
 int FD_ISSET(int fd, fd_set *set);   // 检查某位是否存在
 ```
 
 #### 参数说明
-
-表格
 
 |函数|参数|说明|
 |---|---|---|
@@ -39,8 +29,6 @@ int FD_ISSET(int fd, fd_set *set);   // 检查某位是否存在
 |FD_ISSET|fd、set|文件描述符|
 
 #### 返回值
-
-表格
 
 |函数|返回值|说明|
 |---|---|---|
@@ -59,10 +47,6 @@ fd_set 本质是一个位图（bitmap）
 最大支持 1024 个文件描述符（FD_SETSIZE）
 
 #### 代码示例
-
-c
-
-运行
 
 ```
 #include <sys/select.h>
@@ -105,10 +89,6 @@ int main() {
 
 #### 头文件
 
-c
-
-运行
-
 ```
 #include <sys/select.h>
 #include <sys/time.h>
@@ -117,10 +97,6 @@ c
 
 #### 函数原型
 
-c
-
-运行
-
 ```
 int select(int nfds, fd_set *readfds, fd_set *writefds, 
            fd_set *exceptfds, struct timeval *timeout);
@@ -128,22 +104,15 @@ int select(int nfds, fd_set *readfds, fd_set *writefds,
 
 #### 参数说明
 
-表格
-
-|参数|说明|
-|---|---|
-|nfds|需要监视的最大文件描述符值 + 1|
-|readfds|传入传出参数，可读事件集合|
-|writefds|传入传出参数，可写事件集合|
-|exceptfds|传入传出参数，异常事件集合|
-|timeout|超时时间：<br><br>NULL - 永久阻塞<br><br>tv_sec=0, tv_usec=0 - 立即返回（非阻塞）<br><br>其他值 - 等待指定时间|
+| 参数        | 说明                                                                                  |
+| --------- | ----------------------------------------------------------------------------------- |
+| nfds      | 需要监视的**最大文件描述符值 + 1**                                                               |
+| readfds   | 传入传出参数，可读事件集合                                                                       |
+| writefds  | 传入传出参数，可写事件集合                                                                       |
+| exceptfds | 传入传出参数，异常事件集合                                                                       |
+| timeout   | 超时时间：<br><br>NULL - 永久阻塞<br><br>tv_sec=0, tv_usec=0 - 立即返回（非阻塞）<br><br>其他值 - 等待指定时间 |
 
 timeval 结构
-
-c
-
-运行
-
 ```
 struct timeval {
     long tv_sec;   // 秒
@@ -152,8 +121,6 @@ struct timeval {
 ```
 
 #### 返回值
-
-表格
 
 |返回值|说明|
 |---|---|
@@ -174,10 +141,6 @@ struct timeval {
 水平触发：只要缓冲区有数据，就会持续通知
 
 #### 代码示例 1：基本使用
-
-c
-
-运行
 
 ```
 #include <sys/select.h>
@@ -225,10 +188,6 @@ int main() {
 
 #### 代码示例 2：TCP 服务器（多路转接）
 
-c
-
-运行
-
 ```
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -238,7 +197,7 @@ c
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include <ctype.h>
+#include <ctype.h>            //toupper()
 
 #define PORT 8888
 #define MAX_CLIENTS 1024
@@ -404,30 +363,17 @@ int main() {
 
 #### 头文件
 
-c
-
-运行
-
 ```
 #include <poll.h>
 ```
 
 #### 函数原型
 
-c
-
-运行
-
 ```
 int poll(struct pollfd *fds, nfds_t nfds, int timeout);
 ```
 
 pollfd 结构
-
-c
-
-运行
-
 ```
 struct pollfd {
     int fd;         // 待监听的文件描述符
@@ -437,8 +383,6 @@ struct pollfd {
 ```
 
 #### 事件类型
-
-表格
 
 |事件|说明|
 |---|---|
@@ -450,8 +394,6 @@ struct pollfd {
 
 #### 参数说明
 
-表格
-
 |参数|说明|
 |---|---|
 |fds|pollfd 结构体数组指针|
@@ -459,8 +401,6 @@ struct pollfd {
 |timeout|超时时间（毫秒）：<br><br>-1 - 永久阻塞<br><br>0 - 立即返回（非阻塞）<br><br>>0 - 等待指定毫秒数|
 
 #### 返回值
-
-表格
 
 |返回值|说明|
 |---|---|
@@ -479,10 +419,6 @@ struct pollfd {
 不能跨平台：仅支持 Linux/Unix
 
 #### 代码示例 1：基本使用
-
-c
-
-运行
 
 ```
 #include <poll.h>
@@ -522,10 +458,6 @@ int main() {
 ```
 
 #### 代码示例 2：TCP 服务器（多路转接）
-
-c
-
-运行
 
 ```
 #include <sys/socket.h>
@@ -692,19 +624,11 @@ int main() {
 
 #### 头文件
 
-c
-
-运行
-
 ```
 #include <sys/epoll.h>
 ```
 
 #### 函数原型
-
-c
-
-运行
 
 ```
 int epoll_create(int size);
@@ -713,16 +637,12 @@ int epoll_create1(int flags);  // 新版本
 
 #### 参数说明
 
-表格
-
 |参数|说明|
 |---|---|
 |size|建议的监听节点数量（仅供内核参考）|
 |flags|标志位：<br><br>0 - 默认<br><br>EPOLL_CLOEXEC - 执行 exec 时关闭|
 
 #### 返回值
-
-表格
 
 |返回值|说明|
 |---|---|
@@ -737,52 +657,15 @@ int epoll_create1(int flags);  // 新版本
 
 内核使用红黑树管理文件描述符
 
-#### 代码示例
-
-c
-
-运行
-
-```
-#include <sys/epoll.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-int main() {
-    int epfd;
-    
-    // 创建 epoll 实例
-    epfd = epoll_create(1024);  // 1024 仅供参考
-    if (epfd == -1) {
-        perror("epoll_create error");
-        exit(1);
-    }
-    
-    printf("epoll fd: %d\n", epfd);
-    
-    close(epfd);
-    return 0;
-}
-```
-
 ### 📌 epoll_ctl - 管理 epoll 监听
 
 #### 函数原型
-
-c
-
-运行
 
 ```
 int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 ```
 
 epoll_event 结构
-
-c
-
-运行
-
 ```
 struct epoll_event {
     uint32_t events;  // 监听的事件
@@ -797,8 +680,6 @@ struct epoll_event {
 
 #### 操作类型（op）
 
-表格
-
 |操作|说明|
 |---|---|
 |EPOLL_CTL_ADD|添加 fd 到监听|
@@ -806,8 +687,6 @@ struct epoll_event {
 |EPOLL_CTL_DEL|从监听中删除 fd|
 
 #### 事件类型（events）
-
-表格
 
 |事件|说明|
 |---|---|
@@ -820,8 +699,6 @@ struct epoll_event {
 
 #### 参数说明
 
-表格
-
 |参数|说明|
 |---|---|
 |epfd|epoll_create 返回的 fd|
@@ -830,8 +707,6 @@ struct epoll_event {
 |event|epoll_event 结构体指针|
 
 #### 返回值
-
-表格
 
 |返回值|说明|
 |---|---|
@@ -847,10 +722,6 @@ struct epoll_event {
 无需每次都传递所有 fd
 
 #### 代码示例
-
-c
-
-运行
 
 ```
 #include <sys/epoll.h>
@@ -910,18 +781,11 @@ int main() {
 
 #### 函数原型
 
-c
-
-运行
-
 ```
-int epoll_wait(int epfd, struct epoll_event *events, 
-               int maxevents, int timeout);
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
 ```
 
 #### 参数说明
-
-表格
 
 |参数|说明|
 |---|---|
@@ -931,8 +795,6 @@ int epoll_wait(int epfd, struct epoll_event *events,
 |timeout|超时时间（毫秒）：<br><br>-1 - 永久阻塞<br><br>0 - 立即返回（非阻塞）<br><br>>0 - 等待指定毫秒数|
 
 #### 返回值
-
-表格
 
 |返回值|说明|
 |---|---|
@@ -949,10 +811,6 @@ int epoll_wait(int epfd, struct epoll_event *events,
 无需遍历所有文件描述符
 
 #### 代码示例
-
-c
-
-运行
 
 ```
 #include <sys/epoll.h>
@@ -1014,10 +872,6 @@ int main() {
 ## 📚 五、完整 epoll 服务器示例
 
 ### 💡 epoll LT 模式服务器
-
-c
-
-运行
 
 ```
 #include <sys/socket.h>
@@ -1180,10 +1034,6 @@ int main() {
 
 ### 💡 epoll ET 模式服务器（非阻塞）
 
-c
-
-运行
-
 ```
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -1246,7 +1096,7 @@ int main() {
         exit(1);
     }
     
-    // 设置监听套接字为非阻塞
+    // 设置监听套接字为非阻塞(1)
     set_nonblocking(listenfd);
     
     // 创建 epoll
@@ -1257,7 +1107,7 @@ int main() {
         exit(1);
     }
     
-    // 添加监听套接字（ET 模式）
+    // 添加监听套接字（ET 模式）(2)
     event.events = EPOLLIN | EPOLLET;
     event.data.fd = listenfd;
     
@@ -1287,7 +1137,7 @@ int main() {
         for (int i = 0; i < nfds; i++) {
             int sockfd = events[i].data.fd;
             
-            // 监听套接字：新连接（需要循环 accept）
+            // 监听套接字：新连接（需要循环 accept）(3)
             if (sockfd == listenfd) {
                 while (1) {
                     cli_len = sizeof(cli_addr);
@@ -1307,10 +1157,10 @@ int main() {
                     printf("New connection from %s:%d\n", 
                            cli_ip, ntohs(cli_addr.sin_port));
                     
-                    // 设置为非阻塞
+                    // 设置为非阻塞(4)
                     set_nonblocking(connfd);
                     
-                    // 添加到 epoll（ET 模式）
+                    // 添加到 epoll（ET 模式）(5)
                     event.events = EPOLLIN | EPOLLET;
                     event.data.fd = connfd;
                     
@@ -1320,7 +1170,7 @@ int main() {
                     }
                 }
             } 
-            // 客户端套接字：数据到达（需要循环 read）
+            // 客户端套接字：数据到达（需要循环 read）(6)
             else if (events[i].events & EPOLLIN) {
                 while (1) {
                     n = read(sockfd, buffer, BUFFER_SIZE - 1);
@@ -1367,10 +1217,6 @@ int main() {
 
 ### 💡 epoll ET + 非阻塞 + 回调函数
 
-c
-
-运行
-
 ```
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -1396,6 +1242,7 @@ typedef struct {
     void *arg;                 // 回调函数参数
     char buffer[BUFFER_SIZE];  // 缓冲区
     int len;                   // 缓冲区中数据长度
+    int offset;                // 写入偏移量（用于部分写入）
 } Event;
 
 // 全局 epoll fd
@@ -1436,7 +1283,7 @@ void event_del(Event *ev) {
     }
 }
 
-// 监听套接字回调函数
+// 接受连接回调函数
 void accept_callback(int fd, int events, void *arg) {
     struct sockaddr_in cli_addr;
     socklen_t cli_len = sizeof(cli_addr);
@@ -1463,76 +1310,139 @@ void accept_callback(int fd, int events, void *arg) {
         
         // 创建客户端事件
         Event *ev = malloc(sizeof(Event));
+        if (!ev) {
+            perror("malloc error");
+            close(connfd);
+            continue;
+        }
+        
         ev->fd = connfd;
         ev->events = EPOLLIN | EPOLLET;
-        ev->callback = NULL;  // 稍后设置
+        ev->callback = client_callback;  // 提前绑定统一回调函数
+        ev->arg = ev;
         ev->len = 0;
+        ev->offset = 0;
         
-        // 先注册读事件
+        // 注册读事件
         event_add(ev);
     }
 }
 
-// 读取数据回调函数
-void recv_callback(int fd, int events, void *arg) {
+// 客户端统一回调函数（处理读和写）
+void client_callback(int fd, int events, void *arg) {
     Event *ev = (Event*)arg;
+    
+    // 检查错误或关闭
+    if (events & (EPOLLERR | EPOLLHUP)) {
+        printf("Client %d error or closed\n", fd);
+        close(fd);
+        event_del(ev);
+        free(ev);
+        return;
+    }
+    
+    // 可读事件
+    if (events & EPOLLIN) {
+        handle_read(ev);
+    }
+    
+    // 可写事件
+    if (events & EPOLLOUT) {
+        handle_write(ev);
+    }
+}
+
+// 处理读取
+void handle_read(Event *ev) {
     ssize_t n;
     
     while (1) {
-        n = read(fd, ev->buffer + ev->len, BUFFER_SIZE - ev->len - 1);
+        n = read(ev->fd, ev->buffer + ev->len, BUFFER_SIZE - ev->len - 1);
         
         if (n == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                // 数据已读完，转为写事件
+                // 数据已读完
+                if (ev->len > 0) {
+                    ev->buffer[ev->len] = '\0';
+                    printf("Received from client %d: %s", ev->fd, ev->buffer);
+                    
+                    // 转大写
+                    for (int i = 0; i < ev->len; i++) {
+                        ev->buffer[i] = toupper(ev->buffer[i]);
+                    }
+                    
+                    // 准备发送，修改为写事件
+                    ev->offset = 0;
+                    ev->events = EPOLLOUT | EPOLLET;
+                    event_mod(ev);
+                }
+                break;
+            }
+            perror("read error");
+            close(ev->fd);
+            event_del(ev);
+            free(ev);
+            break;
+        } else if (n == 0) {
+            // 客户端关闭连接
+            printf("Client %d closed connection\n", ev->fd);
+            close(ev->fd);
+            event_del(ev);
+            free(ev);
+            break;
+        } else {
+            ev->len += n;
+            // 检查缓冲区是否已满
+            if (ev->len >= BUFFER_SIZE - 1) {
                 ev->buffer[ev->len] = '\0';
-                printf("Received from client %d: %s", fd, ev->buffer);
+                printf("Received from client %d: %s", ev->fd, ev->buffer);
                 
                 // 转大写
                 for (int i = 0; i < ev->len; i++) {
                     ev->buffer[i] = toupper(ev->buffer[i]);
                 }
                 
-                // 修改为写事件
+                // 准备发送
+                ev->offset = 0;
                 ev->events = EPOLLOUT | EPOLLET;
                 event_mod(ev);
                 break;
             }
-            perror("read error");
-            close(fd);
-            event_del(ev);
-            free(ev);
-            break;
-        } else if (n == 0) {
-            // 客户端关闭连接
-            printf("Client %d closed connection\n", fd);
-            close(fd);
-            event_del(ev);
-            free(ev);
-            break;
-        } else {
-            ev->len += n;
         }
     }
 }
 
-// 发送数据回调函数
-void send_callback(int fd, int events, void *arg) {
-    Event *ev = (Event*)arg;
+// 处理写入（带循环，处理部分写入）
+void handle_write(Event *ev) {
     ssize_t n;
     
-    n = write(fd, ev->buffer, ev->len);
-    
-    if (n == -1) {
-        perror("write error");
-        close(fd);
-        event_del(ev);
-        free(ev);
-    } else {
-        // 数据已发送，转为读事件
-        ev->len = 0;
-        ev->events = EPOLLIN | EPOLLET;
-        event_mod(ev);
+    while (ev->offset < ev->len) {
+        n = write(ev->fd, ev->buffer + ev->offset, ev->len - ev->offset);
+        
+        if (n == -1) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                // 缓冲区满，等待下次可写事件
+                event_mod(ev);  // 确保继续监听写事件
+                return;
+            }
+            // 真正的错误
+            perror("write error");
+            close(ev->fd);
+            event_del(ev);
+            free(ev);
+            return;
+        }
+        
+        // 成功写入
+        ev->offset += n;
     }
+    
+    // 全部写完，重置状态，切回读事件
+    printf("Sent response to client %d\n", ev->fd);
+    ev->len = 0;
+    ev->offset = 0;
+    ev->events = EPOLLIN | EPOLLET;
+    event_mod(ev);
 }
 
 int main() {
@@ -1584,15 +1494,25 @@ int main() {
     
     // 创建监听事件
     Event *listen_ev = malloc(sizeof(Event));
+    if (!listen_ev) {
+        perror("malloc error");
+        close(listenfd);
+        close(epfd);
+        exit(1);
+    }
+    
     listen_ev->fd = listenfd;
     listen_ev->events = EPOLLIN | EPOLLET;
-    listen_ev->callback = accept_callback;
+    listen_ev->callback = accept_callback;  // 提前绑定
     listen_ev->arg = listen_ev;
+    listen_ev->len = 0;
+    listen_ev->offset = 0;
     
     // 添加监听事件
     event_add(listen_ev);
     
     printf("Epoll Reactor server started on port %d\n", PORT);
+    printf("Waiting for connections...\n");
     
     // 主循环
     while (1) {
@@ -1610,36 +1530,27 @@ int main() {
         for (int i = 0; i < nfds; i++) {
             Event *ev = (Event*)events[i].data.ptr;
             
-            // 根据事件类型调用回调函数
-            if (events[i].events & EPOLLIN) {
-                if (ev->fd == listenfd) {
-                    ev->callback(ev->fd, events[i].events, ev->arg);
-                } else {
-                    // 设置回调函数为 recv_callback
-                    ev->callback = recv_callback;
-                    ev->arg = ev;
-                    ev->callback(ev->fd, events[i].events, ev->arg);
-                }
-            } else if (events[i].events & EPOLLOUT) {
-                // 设置回调函数为 send_callback
-                ev->callback = send_callback;
-                ev->arg = ev;
+            // 直接调用回调函数（已经提前设置好）
+            if (ev->callback) {
                 ev->callback(ev->fd, events[i].events, ev->arg);
             }
         }
     }
     
+    // 清理资源
+    event_del(listen_ev);
+    free(listen_ev);
     close(listenfd);
     close(epfd);
+    
     return 0;
 }
 ```
 
+
 ## 📚 七、select、poll、epoll 对比总结
 
 ### 📊 性能对比表
-
-表格
 
 |特性|select|poll|epoll|
 |---|---|---|---|
@@ -1664,10 +1575,6 @@ epoll：Linux 平台，高并发场景（推荐）
 
 ### 📌 查看和修改限制
 
-bash
-
-运行
-
 ```
 # 查看系统最大文件描述符数
 cat /proc/sys/fs/file-max
@@ -1689,10 +1596,6 @@ sudo vim /etc/security/limits.conf
 ```
 
 ### 📌 代码中设置
-
-c
-
-运行
 
 ```
 #include <sys/resource.h>
@@ -1720,10 +1623,6 @@ void set_max_fds() {
 
 ### ⚠️ 1. select 的 nfds 参数
 
-c
-
-运行
-
 ```
 // ❌ 错误：nfds 应该是最大 fd + 1
 FD_SET(100, &readfds);
@@ -1735,10 +1634,6 @@ select(101, &readfds, NULL, NULL, NULL);  // 正确
 ```
 
 ### ⚠️ 2. ET 模式必须非阻塞
-
-c
-
-运行
 
 ```
 // ❌ 错误：ET 模式 + 阻塞 IO 会导致卡死
@@ -1753,10 +1648,6 @@ epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &event);
 ```
 
 ### ⚠️ 3. epoll_wait 返回后要循环读取
-
-c
-
-运行
 
 ```
 // ❌ 错误：只读一次
