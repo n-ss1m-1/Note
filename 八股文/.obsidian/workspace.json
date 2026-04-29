@@ -4,7 +4,7 @@
     "type": "split",
     "children": [
       {
-        "id": "0c0c6bd4b06aebe0",
+        "id": "f7f8f65082046b7c",
         "type": "tabs",
         "children": [
           {
@@ -22,77 +22,35 @@
             }
           },
           {
-            "id": "dff2176acac8efd0",
+            "id": "c11aaa726ba99148",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "系统编程和网络编程/进程间通信.md",
+                "file": "项目/muduo-核心面试准备.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "进程间通信"
+              "title": "muduo-核心面试准备"
             }
           },
           {
-            "id": "dd3e46c28937cea5",
+            "id": "9465cd2114564f4a",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "系统编程和网络编程/进程基础.md",
+                "file": "项目/FTS-核心面试准备.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "进程基础"
-            }
-          },
-          {
-            "id": "496605dcc50a2b63",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "操作系统/3.进程与线程.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "3.进程与线程"
-            }
-          },
-          {
-            "id": "01dc41c6f4c86033",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "系统编程和网络编程/Socket编程.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Socket编程"
-            }
-          },
-          {
-            "id": "d4cba789b37b5373",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "系统编程和网络编程/IO多路复用.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "IO多路复用"
+              "title": "FTS-核心面试准备"
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -227,13 +185,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "系统编程和网络编程/进程基础.md",
+                "file": "项目/muduo-核心面试准备.md",
                 "followCursor": true,
                 "showSearch": true,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "进程基础 的大纲"
+              "title": "muduo-核心面试准备 的大纲"
             }
           }
         ],
@@ -256,15 +214,30 @@
       "omnisearch:Omnisearch": false
     }
   },
-  "active": "dd3e46c28937cea5",
+  "active": "c11aaa726ba99148",
   "lastOpenFiles": [
+    "项目/FTS-核心面试准备.md",
+    "项目/muduo-核心面试准备.md",
+    "项目/FTS-README.md",
+    "项目/FTS-learning.md",
+    "项目/README.md",
+    "计算机网络/2.HTTP & HTTPS.md",
+    "简历.md",
     "系统编程和网络编程/线程与线程同步.md",
-    "操作系统/3.进程与线程.md",
-    "系统编程和网络编程/进程间通信.md",
+    "项目/muduo-question.md",
+    "操作系统/7.网络系统.md",
+    "项目/muduo-learning.md",
+    "项目/muduo-ET与LT的选择.md",
     "规划/今日规划.md",
+    "项目/learning.md",
+    "项目/learning2.md",
+    "项目",
+    "新建文件夹",
     "系统编程和网络编程/IO多路复用.md",
-    "系统编程和网络编程/进程基础.md",
     "系统编程和网络编程/Socket编程.md",
+    "操作系统/3.进程与线程.md",
+    "系统编程和网络编程/进程基础.md",
+    "系统编程和网络编程/进程间通信.md",
     "C++/智能指针的区别对比+高频面试题.md",
     "系统编程和网络编程/文件IO系统调用.md",
     "系统编程和网络编程/CMake.md",
@@ -272,21 +245,8 @@
     "系统编程和网络编程/守护进程.md",
     "操作系统/2.内存管理.md",
     "系统编程和网络编程",
-    "C++/STL.md",
-    "C++/右值引用、移动语义、完美转发.md",
-    "C++/C++锁的API.md",
-    "MySQL/2.索引篇.md",
-    "MySQL/4.锁篇.md",
-    "MySQL/5.日志篇.md",
-    "MySQL/3.事务篇.md",
     "MySQL/图片资源/undo log版本链.jpg",
     "MySQL/图片资源/8ffcc775-d7c5-412f-9221-f26191721f21.jpg",
-    "计算机网络/2.HTTP & HTTPS.md",
-    "计算机网络/3.TCP与UDP.md",
-    "计算机网络/1.在浏览器中输入URL并按下回车之后会发生什么.md",
-    "操作系统/5.文件系统.md",
-    "操作系统/7.网络系统.md",
-    "操作系统/4.调度算法.md",
     "未命名.base",
     "未命名.canvas",
     "操作系统/图片资源/块组.PNG",
@@ -302,8 +262,6 @@
     "MySQL",
     "C++",
     "LeetCode Hot 100/图片资源",
-    "LeetCode Hot 100/新建文件夹",
-    "LeetCode Hot 100",
-    "操作系统/图片资源"
+    "LeetCode Hot 100/新建文件夹"
   ]
 }
